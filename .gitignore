@@ -10,3 +10,4 @@ __pycache__/
 # CSS files (tracking SCSS instead)
 static/catalog.css
 static/catalog.css.map
+static/sass/.sass-cache/
