@@ -28,6 +28,7 @@ class Item(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String)
+    price = Column(String, nullable=False)
     category = relationship(Category)
     category_id = Column(ForeignKey("category.id"))
 
