@@ -7,32 +7,32 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Category(Base):
     """ Table storing item category information """
-    __tablename__ = "categories"
+    __tablename__ = "category"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    items = relationship(Item)
 
     @property
     def serialize(self):
-        """ Returns a dict that can easily be converted to JSON representation """
+        """ Returns a dict of object data easily convertible to JSON  """
         return {
             "id": self.id,
             "name": self.name
         }
 
-
 class Item(Base):
     """ Table storing item information """
-    __tablename__ = "items"
+    __tablename__ = "item"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    category_id = Column(ForeignKey, categories.id)
+    category = relationship(Category)
+    category_id = Column(ForeignKey("category.id"))
 
     @property
     def serialize(self):
-        """ Returns a dict that can easily be converted to JSON representation """
+        """ Returns a dict of object data easily convertible to JSON  """
         return {
             "id": self.id,
             "name": self.name,
