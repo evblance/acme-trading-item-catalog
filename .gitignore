@@ -6,3 +6,6 @@ __pycache__/
 
 # AI files
 *.ai
+
+# CSS files (tracking SCSS instead)
+static/catalog.css
