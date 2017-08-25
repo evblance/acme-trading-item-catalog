@@ -22,19 +22,19 @@ categories = ["Electronics", "Kitchenware", "Hardware",
 electronics_items = [
     {
         "name": "Used Circuit Board",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Pulled from a working PC build.",
         "price": "$2",
         "category": "Electronics"
     },
     {
         "name": "Stripped 44 AWG Wire",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Useful for the adventurous magnetic pickup designer.",
         "price": "$50",
         "category": "Electronics"
     },
     {
         "name": "CRT Monitor",
-        "description": "Great value for gamers looking for zero-latency performance.",
+        "description": "Great value for gamers interested in zero-latency performance.",
         "price": "$10",
         "category": "Electronics"
     }
@@ -56,19 +56,19 @@ kitchenware_items = [
     },
     {
         "name": "Steak Knife",
-        "description": "For lovers of large meat portions.",
+        "description": "For lovers of large meat slabs.",
         "price": "$25",
         "category": "Kitchenware"
     },
     {
-        "name": "Chipped Teapot",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "name": "Chipped Teapot Set",
+        "description": "Previously owned by a very angry prince.",
         "price": "$5",
         "category": "Kitchenware"
     },
     {
         "name": "Cracked Plate",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Greek wedding survivor.",
         "price": "$3",
         "category": "Kitchenware"
     },
@@ -89,7 +89,7 @@ hardware_items = [
     },
     {
         "name": "Screw (Random gauge)",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Buy in bulk and you will never again have to worry about having the right screw size for your project.",
         "price": "$1",
         "category": "Hardware"
     }
@@ -98,37 +98,37 @@ hardware_items = [
 appliances_items = [
     {
         "name": "Unshielded Microwave",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Perfectly fine unless you stand in front of it.",
         "price": "$70",
         "category": "Appliances"
     },
     {
         "name": "Automatic Dishwasher",
-        "description": "Washes the dishes for you. Disclaimer: May scratch your glasses and crockery.",
+        "description": "Machanically washes the dishes for your household. Disclaimer: May scratch your glasses and crockery.",
         "price": "$230",
         "category": "Appliances"
     },
     {
-        "name": "Washing Machine",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "name": "Ex-German Washing Machine",
+        "description": "Manufactured in China to reduce costs, some of which is passed on to the consumer.",
         "price": "$600",
         "category": "Appliances"
     },
     {
         "name": "Modded Sandwich Maker",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Makes a great toasted sandwich in less time than it than it took you to read this description.",
         "price": "$20",
         "category": "Appliances"
     },
     {
         "name": "Bio-Gas Oven",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Experimental oven.",
         "price": "$100",
         "category": "Appliances"
     },
     {
         "name": "4K LCD TV",
-        "description": "Useless 'Down Under', no matter what the marketing hype tells you.",
+        "description": "Absolutely useless 'Down Under', no matter what the marketing hype tells you.",
         "price": "$1200",
         "category": "Appliances"
     }
@@ -137,7 +137,7 @@ appliances_items = [
 apparel_items = [
     {
         "name": "Mithril Vest",
-        "description": "Enchanted prop from the LOTR movies.",
+        "description": "The real deal, as seen in the LOTR movies.",
         "price": "$8000",
         "category": "Apparel"
     },
@@ -149,7 +149,7 @@ apparel_items = [
     },
     {
         "name": "Faded Jeans",
-        "description": "Unisex and well used. The label says <read-error>evi's.",
+        "description": "Unisex and well worn. The label says <read-error>evi's.",
         "price": "$30",
         "category": "Apparel"
     }
@@ -158,7 +158,7 @@ apparel_items = [
 musical_instruments_items = [
     {
         "name": "Enchanted Flute",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Donated from Neverland.",
         "price": "$740",
         "category": "Musical Instruments"
     },
@@ -188,13 +188,13 @@ furniture_items = [
 medical_consumables_items = [
     {
         "name": "Sticky-Aid Kit",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "Will aid in dressing the occasional cuts and bruises.",
         "price": "$8",
         "category": "Medical Consumables"
     },
     {
         "name": "Mentats",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": "A rather addictive stimulant best used in times of nuclear fallout. One pack contains 8 tablets.",
         "price": "$11",
         "category": "Medical Consumables"
     }
