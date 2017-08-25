@@ -252,7 +252,8 @@ for i in electronics_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -265,7 +266,8 @@ for i in kitchenware_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -278,7 +280,8 @@ for i in hardware_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -291,7 +294,8 @@ for i in appliances_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -304,7 +308,8 @@ for i in apparel_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -317,7 +322,8 @@ for i in musical_instruments_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -330,7 +336,8 @@ for i in furniture_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -343,7 +350,8 @@ for i in electronics_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
 
@@ -356,6 +364,7 @@ for i in food_items:
     item_description = i["description"]
     item_price = i["price"]
     item_category = i["category"]
-    item = Item(name=item_name, description=item_description, price=item_price, category=category)
+    item_stock = i["stock"]
+    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
     session.add(item)
     session.commit()
