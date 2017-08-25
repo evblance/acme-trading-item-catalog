@@ -244,7 +244,8 @@ food_items = [
 ]
 
 electronics = categories[0]
-category = Category(name=electronics)
+image_file = "static/images/categories/electronics/electronics.jpg"
+category = Category(name=electronics, image=image_file)
 session.add(category)
 session.commit()
 for i in electronics_items:
@@ -258,7 +259,8 @@ for i in electronics_items:
     session.commit()
 
 kitchenware = categories[1]
-category = Category(name=kitchenware)
+category = Category(name=kitchenware, image=image_file)
+image_file = "static/images/categories/kitchenware/kitchenware.jpg"
 session.add(category)
 session.commit()
 for i in kitchenware_items:
@@ -272,7 +274,8 @@ for i in kitchenware_items:
     session.commit()
 
 hardware = categories[2]
-category = Category(name=hardware)
+image_file = "static/images/categories/hardware/hardware.jpg"
+category = Category(name=hardware, image=image_file)
 session.add(category)
 session.commit()
 for i in hardware_items:
@@ -286,7 +289,8 @@ for i in hardware_items:
     session.commit()
 
 appliances = categories[3]
-category = Category(name=appliances)
+image_file = "static/images/categories/appliances/appliances.jpeg"
+category = Category(name=appliances, image=image_file)
 session.add(category)
 session.commit()
 for i in appliances_items:
@@ -300,7 +304,8 @@ for i in appliances_items:
     session.commit()
 
 apparel = categories[4]
-category = Category(name=apparel)
+image_file = "static/images/categories/apparel/apparel.jpg"
+category = Category(name=apparel, image=image_file)
 session.add(category)
 session.commit()
 for i in apparel_items:
@@ -314,7 +319,8 @@ for i in apparel_items:
     session.commit()
 
 musical_instruments = categories[5]
-category = Category(name=musical_instruments)
+image_file = "static/images/categories/musical_instruments/musical_instruments.jpg"
+category = Category(name=musical_instruments, image=image_file)
 session.add(category)
 session.commit()
 for i in musical_instruments_items:
@@ -328,7 +334,8 @@ for i in musical_instruments_items:
     session.commit()
 
 furniture = categories[6]
-category = Category(name=furniture)
+image_file = "static/images/categories/furniture/furniture.jpeg"
+category = Category(name=furniture, image=image_file)
 session.add(category)
 session.commit()
 for i in furniture_items:
@@ -342,7 +349,8 @@ for i in furniture_items:
     session.commit()
 
 medical_consumables = categories[7]
-category = Category(name=medical_consumables)
+image_file = "static/images/categories/medical_consumables/medical_consumables.jpeg"
+category = Category(name=medical_consumables, image=image_file)
 session.add(category)
 session.commit()
 for i in medical_consumables_items:
@@ -356,7 +364,8 @@ for i in medical_consumables_items:
     session.commit()
 
 food = categories[8]
-category = Category(name=food)
+image_file = "static/images/categories/food/food.jpg"
+category = Category(name=food, image=image_file)
 session.add(category)
 session.commit()
 for i in food_items:

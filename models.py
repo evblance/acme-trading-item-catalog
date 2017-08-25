@@ -13,13 +13,15 @@ class Category(Base):
     __tablename__ = "category"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    image = Column(String)
 
     @property
     def serialize(self):
         """ Returns a dict of object data easily convertible to JSON  """
         return {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "image": self.image
         }
 
 class Item(Base):
@@ -30,6 +32,7 @@ class Item(Base):
     description = Column(String)
     price = Column(String, nullable=False)
     stock = Column(Integer, nullable=False)
+    image = Column(String)
     category = relationship(Category)
     category_id = Column(ForeignKey("category.id"))
 
@@ -42,6 +45,7 @@ class Item(Base):
             "description": self.description,
             "price": self.price,
             "stock": self.stock,
+            "image": self.image,
             "category_id": self.category_id
         }
 
