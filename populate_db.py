@@ -130,7 +130,7 @@ appliances_items = [
     },
     {
         "name": "Modded Sandwich Maker",
-        "description": "Makes a great toasted sandwich in less time than it than it took you to read this description.",
+        "description": "Will toast a sandwich in less time than it takes you to read this description.",
         "price": "$20",
         "stock": 1,
         "category": "Appliances"
@@ -219,7 +219,7 @@ medical_consumables_items = [
     },
     {
         "name": "Mentats",
-        "description": "A rather addictive stimulant best used in times of nuclear fallout. One pack contains 8 tablets.",
+        "description": "A rather addictive stimulant best used in times of nuclear fallout. Each pack contains 8 tablets.",
         "price": "$11",
         "stock": 55,
         "category": "Medical Consumables"
