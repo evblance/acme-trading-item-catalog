@@ -11,3 +11,6 @@ __pycache__/
 static/catalog.css
 static/catalog.css.map
 static/sass/.sass-cache/
+
+# Source files
+/src
