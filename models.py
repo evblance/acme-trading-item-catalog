@@ -29,6 +29,7 @@ class Item(Base):
     name = Column(String, nullable=False)
     description = Column(String)
     price = Column(String, nullable=False)
+    stock = Column(Integer, nullable=False)
     category = relationship(Category)
     category_id = Column(ForeignKey("category.id"))
 
@@ -40,6 +41,7 @@ class Item(Base):
             "name": self.name,
             "description": self.description,
             "price": self.price,
+            "stock": self.stock,
             "category_id": self.category_id
         }
 
