@@ -327,8 +327,8 @@ for i in musical_instruments_items:
     session.add(item)
     session.commit()
 
-furniuture = categories[6]
-category = Category(name=furniuture)
+furniture = categories[6]
+category = Category(name=furniture)
 session.add(category)
 session.commit()
 for i in furniture_items:
@@ -345,7 +345,7 @@ medical_consumables = categories[7]
 category = Category(name=medical_consumables)
 session.add(category)
 session.commit()
-for i in electronics_items:
+for i in medical_consumables_items:
     item_name = i["name"]
     item_description = i["description"]
     item_price = i["price"]
