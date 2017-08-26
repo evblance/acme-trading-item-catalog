@@ -1,0 +1,388 @@
+//// SASS VARIALBLES
+
+/// COLORS
+$backgroundColor: rgb(230,230,230);
+$disabledColor: rgb(204,204,204);
+$footerBackgroundColor: rgb(0,54,67);
+$itemCardColor: #fff;
+$itemTextColor: rgb(0,64,80);
+$linkColor: rgb(77,62,62);
+$linkHoverColor: rgb(217,105,105);
+$menuTextColor: rgb(230,230,230);
+$menuHoverColor: #eee;
+$navBackgroudColor: rgb(0,157,195);
+$textColor: rgb(77,77,77);
+
+/// DECORATIVE
+// SHADOWS
+$dropShadow: 1px 2px 8px 1px rgba(0,0,0,0.25);
+$innerShadow: inset 0 0 3px 1px rgba(0,0,0,0.2);
+$menuShadow: 0 2px 10px 1px rgba(0,0,0,0.5);
+$barShadow: inset 0 0 6px 1px rgba(0,0,0,0.1);
+
+// TRANSITIONS
+$lazyTransition: all 0.3s ease-out;
+
+/// FONTS
+$bodyFont: "Open Sans", sans-serif;
+$headersFont: "Mukta Mahee", sans-serif;
+
+/// MEASURES
+$footerHeight: 80px;
+$menuHeight: 60px;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * TABLE OF CONTENTS
+ * *****************
+ *
+ *   0. Helpers
+ *   1. Buttons
+ *   2. Header
+ *   3. Footer
+ *   4. Content
+ *
+ */
+
+
+/* 0. HELPERS */
+
+.inline {
+  display: inline;
+}
+
+/* 1. BUTTONS */
+
+
+/* 2. HEADER */
+
+.header {
+  background: $navBackgroudColor;
+  display: flex;
+  justify-content: space-between;
+  font-family: $headersFont;
+  box-shadow: $menuShadow;
+  transition: $lazyTransition;
+  z-index: 1;
+}
+
+.heading--title {
+  color: $menuTextColor;
+  font-size: 40px;
+
+  &:hover {
+    color: $menuTextColor;
+    text-decoration: none;
+  }
+}
+
+.main-menu {
+  height: $menuHeight;
+  display: flex;
+  margin: 0 10px;
+}
+
+.main-menu__list {
+  display: flex;
+  list-style: none;
+  color: $menuTextColor;
+}
+
+.main-menu__item {
+  font-size: 24px;
+}
+
+.main-menu__link {
+  color: $menuTextColor;
+  text-decoration: none;
+}
+
+.main-menu__dropdown {
+  list-style: none;
+  display: none;
+}
+
+.main-menu__dropdown-item {
+
+}
+
+.main-menu__dropdown-link {
+  text-decoration: none;
+}
+
+
+
+/* 3. FOOTER */
+
+.footer {
+  background: $footerBackgroundColor;
+  color: $menuTextColor;
+  height: $footerHeight;
+}
+
+
+/* 4. CONTENT */
+
+.admin-panel--category {
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  left: -100%;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  transition: $lazyTransition;
+}
+
+.admin-panel--category--shown {
+  left: 0;
+}
+
+.admin-panel--category__delete,
+.admin-panel--category__update {
+  margin: 2%;
+}
+
+.admin-panel--item {
+  align-items: center;
+  background: rgba(255,255,255,0.8);
+  display: none;
+  justify-content: center;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.admin-panel--item--shown {
+  display: flex;
+}
+
+.admin-panel--item__delete,
+.admin-panel--item__update {
+  margin: 2%;
+}
+
+.btn--add {
+  position: relative;
+  right: 10px;
+  bottom: 60px;
+  float: right;
+}
+
+.form--login {
+  margin: 80px auto;
+  max-width: 300px;
+  width: 100%;
+}
+
+.form--login__heading {
+  text-align: center;
+  margin: 25px;
+}
+
+.form--login__label {
+  display: block;
+  text-align: left;
+  margin: 10px auto 0 5px;
+}
+
+.form--login__submit {
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    background: $menuHoverColor;
+  }
+}
+
+.form--delete {
+  margin: 80px auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.form--delete__submit,
+.form--delete__cancel {
+  margin: 0 10px;
+}
+
+.form--add,
+.form--update {
+  margin: 80px auto;
+  max-width: 500px;
+  width: 100%;
+}
+
+.form--update__label {
+  display: block;
+  text-align: left;
+  margin: 10px auto 0 5px;
+}
+
+.g-login {
+  // TODO: GOOGLE LOGIN BUTTON
+}
+
+.g-login__heading {
+  text-align: center;
+}
+
+.item {
+  background: $itemCardColor;
+  box-shadow: $dropShadow;
+  color: $itemTextColor;
+  display: block;
+  height: 100%;
+  padding: 10px 20px;
+  position: relative;
+  width: 100%;
+}
+
+.item__header {
+  display: flex;
+  font-size: 24px;
+  justify-content: space-between;
+}
+
+
+.item__description {
+  font-size: 16px;
+  margin: 15px auto 0;
+}
+
+.item__stock {
+  display: flex;
+  align-items: center;
+}
+
+.input--currency {
+
+  &::before {
+    content: "$";
+    position: absolute;
+    left: -20px;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list--categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.list--items {
+  margin: 0 auto;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.list__item--categories {
+  align-items: center;
+  background: $itemCardColor;
+  box-shadow: $dropShadow;
+  display: flex;
+  height: 100px;
+  margin: 20px;
+  max-width: 250px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.list__item--items {
+  margin: 25px 0;
+  width: 100%;
+}
+
+.list__item--categories__img {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: -80px;
+  transition: $lazyTransition;
+}
+
+.list__item--categories__img--active {
+  right: -40px;
+}
+
+.list__item--categories__link {
+  background: $itemCardColor;
+  color: $linkColor;
+  cursor: pointer;
+  margin-left: 15px;
+  padding: 5px;
+  z-index: 1;
+
+  &:hover {
+    color: $linkHoverColor;
+    text-decoration: none;
+
+    // + .list__item--categories__img {
+    //   right: 0;
+    // }
+  }
+}
+
+.list__item--categories__name {
+
+}
+
+
+.login {
+  margin: 0 10px;
+}
+
+.login__link {
+  color: $menuTextColor;
+  display: block;
+  text-decoration: none;
+  height: 100%;
+  line-height: $menuHeight;
+  transition: $lazyTransition;
+
+  &:hover {
+    color: $menuHoverColor;
+    text-decoration: none;
+  }
+}
+
+.main {
+  background: $backgroundColor;
+  display: block;
+  font-family: $bodyFont;
+  flex: 1 0 auto;
+}
+
+.stock-bar {
+  align-items: center;
+  box-shadow: $barShadow;
+  display: flex;
+  margin-left: 5px;
+}
+
+.subheading {
+  color: $textColor;
+  font-size: 36px;
+  margin: 20px auto 30px 15px;
+}
