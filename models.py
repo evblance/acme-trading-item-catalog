@@ -20,8 +20,7 @@ class Category(Base):
         """ Returns a dict of object data easily convertible to JSON  """
         return {
             "id": self.id,
-            "name": self.name,
-            "image": self.image
+            "name": self.name
         }
 
 class Item(Base):
@@ -45,7 +44,6 @@ class Item(Base):
             "description": self.description,
             "price": self.price,
             "stock": self.stock,
-            "image": self.image,
             "category_id": self.category_id
         }
 
