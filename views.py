@@ -203,37 +203,6 @@ def deleteItem(item_id, category_id):
     else:
         return abort(400)
 
-    category = session.query(Category).filter_by(id=category_id).one()
-    category_items = session.query(Item).filter_by(category_id=category_id).all()
-    subheading = "Deleting category '{name}' (id: {id})" \
-                     .format(name=category.name, id=category_id)
-
-    if request.method == "POST":
-
-        # delete the category...
-        session.delete(category)
-        # ...followed by all items in the category
-        for item in category_items:
-            session.delete(item)
-
-        session.commit()
-        flash("Successfully deleted category '{}'.".format(category.name))
-        return redirect(url_for("home"));
-
-    elif request.method == "GET":
-        flash(
-            """
-            Warning: This operation cannot be undone and will also delete all
-            items associated with this category!
-            """
-        )
-        return render_template("delete_category.html",
-                               title=TITLE,
-                               subheading=subheading,
-                               category=category)
-    else:
-        return abort(400)
-
 # Route for adding categories
 @app.route("/categories/add", methods=["POST", "GET"])
 def addCategories():
