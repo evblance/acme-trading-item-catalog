@@ -1,0 +1,30 @@
+
+{% extends "main.html" %}
+{% block content %}
+
+<h2>{{ subheading }}</h2>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="container"><p class="alert alert-danger">{{ message }}</p></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+
+<form class="form--login" action="/login" method="post">
+  <h3 class="form--login__heading">ACME Admin</h3>
+  <fieldset class="form-group">
+    <label class="form--login__label" for="username">Username</label>
+    <input class="form-control" name="username" type="text">
+    <label class="form--login__label" for="password">Password</label>
+    <input class="form-control" name="password" type="password">
+  </fieldset>
+  <button class="btn form--login__submit" type="submit">Login</button>
+</form>
+<div class="g-login">
+  <h4 class="g-login__heading">Log in with Google</h4>
+</div>
+
+{% endblock %}

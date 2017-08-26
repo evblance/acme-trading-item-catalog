@@ -1,34 +1,41 @@
-<!DOCTYPE html>
 
-<html lang="en">
+{% extends "main.html" %}
+{% block content %}
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<h2 class="subheading">{{ subheading }}</h2>
+<a class="btn btn-info btn--add" href="{{ url_for('addCategories') }}">Add categories</a>
 
-    <title>{{ title }} | {{ subtitle }}</title>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="container"><p class="alert alert-info">{{ message }}</p></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='catalog.css') }}">
-</head>
+{% if categories %}
+<ul class="list list--categories">
+  {% for category in categories %}
+  <li class="list__item list__item--categories">
+    <a class="list__item--categories__link"
+       href="{{ url_for('displayCategory', category_id=category.id) }}">
+       <span class="list__item--categories__name">{{ category.name }}</span>
+       <img class="list__item--categories__img"
+            src="{{ category.image }}"
+            alt="image of {{ category.name }} category">
+    </a>
+    <div class="admin-panel--category">
+       <a class="admin-panel--category__update"
+          href="{{ url_for('updateCategory', category_id=category.id) }}">Update</a>
+       <span>|</span>
+       <a class="admin-panel--category__delete"
+          href="{{ url_for('deleteCategory', category_id=category.id) }}">Delete</a>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="alert alert-danger">There are no categories to view.</p>
+{% endif %}
 
-<body>
-
-  <header>
-    <h1>{{ page_heading }}</h1>
-    <nav>
-
-    </nav>
-  </header>
-
-  <h2>{{ page_subheading }}</h2>
-
-
-  <!-- <script src="js/vendor/modernizr-3.5.0.min.js"></script> -->
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <!-- <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.2.1.min.js"><\/script>')</script> -->
-  <!-- <script src="js/plugins.js"></script> -->
-  <!-- <script src="js/main.js"></script> -->
-</body>
-
-</html>
+{% endblock %}

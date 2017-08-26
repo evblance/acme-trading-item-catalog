@@ -1,0 +1,48 @@
+
+{% extends "main.html" %}
+{% block content %}
+
+<h2 class="subheading">{{ subheading }}</h2>
+<a class="btn btn-info btn--add"
+   href="{{ url_for('addItems', category_id=category.id) }}">Add Items</a>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="container"><p class="alert alert-info">{{ message }}</p></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if items %}
+<ul class="list list--items">
+  {% for item in items %}
+  <li class="list__item list__item--items">
+    <article id="item-{{ item.id }}" class="item" data-stock="{{ item.stock }}">
+      <div class="item__header">
+        <div class="item__header__left">
+            <span class="item__name">{{ item.name }}</span>
+            -
+            <span class="item__price">{{ item.price }}</span>
+        </div>
+        <div class="item__header__right">
+          <div class="item__stock">
+            <span>Stock level</span>
+          </div>
+        </div>
+      </div>
+      <p class="item__description">{{ item.description }}</p>
+      <div class="admin-panel--item">
+        <a class="admin-panel--item__update" href="{{ url_for('updateItem', item_id=item.id, category_id=category.id) }}">Update</a>
+        <span>|</span>
+        <a class="admin-panel--item__delete" href="{{ url_for('deleteItem', item_id=item.id, category_id=category.id) }}">Delete</a>
+      </div>
+    </article>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="alert alert-danger">There are no items to view.</p>
+
+{% endif %}
+{% endblock %}

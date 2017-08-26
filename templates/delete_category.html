@@ -1,0 +1,22 @@
+
+{% extends "main.html" %}
+{% block content %}
+
+<h2 class="subheading">{{ subheading }}</h2>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="container"><p class="alert alert-danger">{{ message }}</p></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<form class="form--delete"
+      action="{{ url_for('deleteCategory', category_id=category.id) }}"
+      method="post">
+  <button class="btn btn-danger form--delete__submit" type="submit">Delete</button>
+  <a href="{{ url_for('home') }}" class="btn form--delete__cancel">Cancel</a>
+</form>
+
+{% endblock %}
