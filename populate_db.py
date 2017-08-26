@@ -178,7 +178,7 @@ apparel_items = [
 musical_instruments_items = [
     {
         "name": "Enchanted Flute",
-        "description": "Donated from Neverland.",
+        "description": "Donated by Mr. Pan himself.",
         "price": "$740",
         "stock": 1,
         "category": "Musical Instruments"
