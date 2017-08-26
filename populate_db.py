@@ -244,7 +244,7 @@ food_items = [
 ]
 
 electronics = categories[0]
-image_file = "static/images/categories/electronics/electronics.jpg"
+image_file = "static/images/categories/1/electronics.jpg"
 category = Category(name=electronics, image=image_file)
 session.add(category)
 session.commit()
@@ -260,7 +260,7 @@ for i in electronics_items:
 
 kitchenware = categories[1]
 category = Category(name=kitchenware, image=image_file)
-image_file = "static/images/categories/kitchenware/kitchenware.jpg"
+image_file = "static/images/categories/2/kitchenware.jpg"
 session.add(category)
 session.commit()
 for i in kitchenware_items:
@@ -274,7 +274,7 @@ for i in kitchenware_items:
     session.commit()
 
 hardware = categories[2]
-image_file = "static/images/categories/hardware/hardware.jpg"
+image_file = "static/images/categories/3/hardware.jpg"
 category = Category(name=hardware, image=image_file)
 session.add(category)
 session.commit()
@@ -289,7 +289,7 @@ for i in hardware_items:
     session.commit()
 
 appliances = categories[3]
-image_file = "static/images/categories/appliances/appliances.jpg"
+image_file = "static/images/categories/4/appliances.jpg"
 category = Category(name=appliances, image=image_file)
 session.add(category)
 session.commit()
@@ -304,7 +304,7 @@ for i in appliances_items:
     session.commit()
 
 apparel = categories[4]
-image_file = "static/images/categories/apparel/apparel.jpg"
+image_file = "static/images/categories/5/apparel.jpg"
 category = Category(name=apparel, image=image_file)
 session.add(category)
 session.commit()
@@ -319,7 +319,7 @@ for i in apparel_items:
     session.commit()
 
 musical_instruments = categories[5]
-image_file = "static/images/categories/musical_instruments/musical_instruments.jpg"
+image_file = "static/images/categories/6/musical_instruments.jpg"
 category = Category(name=musical_instruments, image=image_file)
 session.add(category)
 session.commit()
@@ -334,7 +334,7 @@ for i in musical_instruments_items:
     session.commit()
 
 furniture = categories[6]
-image_file = "static/images/categories/furniture/furniture.jpg"
+image_file = "static/images/categories/7/furniture.jpg"
 category = Category(name=furniture, image=image_file)
 session.add(category)
 session.commit()
@@ -349,7 +349,7 @@ for i in furniture_items:
     session.commit()
 
 medical_consumables = categories[7]
-image_file = "static/images/categories/medical_consumables/medical_consumables.jpg"
+image_file = "static/images/categories/8/medical_consumables.jpg"
 category = Category(name=medical_consumables, image=image_file)
 session.add(category)
 session.commit()
@@ -364,7 +364,7 @@ for i in medical_consumables_items:
     session.commit()
 
 food = categories[8]
-image_file = "static/images/categories/food/food.jpg"
+image_file = "static/images/categories/9/food.jpg"
 category = Category(name=food, image=image_file)
 session.add(category)
 session.commit()
