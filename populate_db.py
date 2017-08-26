@@ -123,7 +123,7 @@ appliances_items = [
     },
     {
         "name": "Ex-German Washing Machine",
-        "description": "Manufactured in China to reduce costs, some of which is passed on to the consumer.",
+        "description": "Manufactured in China to reduce costs, which may or may not have been passed on to the customer.",
         "price": "$600",
         "stock": 18,
         "category": "Appliances"
@@ -289,7 +289,7 @@ for i in hardware_items:
     session.commit()
 
 appliances = categories[3]
-image_file = "static/images/categories/appliances/appliances.jpeg"
+image_file = "static/images/categories/appliances/appliances.jpg"
 category = Category(name=appliances, image=image_file)
 session.add(category)
 session.commit()
@@ -334,7 +334,7 @@ for i in musical_instruments_items:
     session.commit()
 
 furniture = categories[6]
-image_file = "static/images/categories/furniture/furniture.jpeg"
+image_file = "static/images/categories/furniture/furniture.jpg"
 category = Category(name=furniture, image=image_file)
 session.add(category)
 session.commit()
@@ -349,7 +349,7 @@ for i in furniture_items:
     session.commit()
 
 medical_consumables = categories[7]
-image_file = "static/images/categories/medical_consumables/medical_consumables.jpeg"
+image_file = "static/images/categories/medical_consumables/medical_consumables.jpg"
 category = Category(name=medical_consumables, image=image_file)
 session.add(category)
 session.commit()
