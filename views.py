@@ -25,6 +25,8 @@ TITLE = "ACME Trading"
 
 logged_in = False
 
+#### HTML ROUTES ####
+
 @app.route("/")
 @app.route("/index")
 def home():
@@ -306,7 +308,7 @@ def deleteCategory(category_id):
         flash(
             """
             Warning: This operation cannot be undone and will also delete all
-            items associated with this category!
+            items associated within this category!
             """
         )
         return render_template("delete_category.html",
@@ -317,6 +319,32 @@ def deleteCategory(category_id):
         return abort(400)
 
 
+#### API ROUTES ####
+
+@app.errorhandler(400)
+def badRequestError():
+    data = {
+        "status": 400,
+        "message": "Bad route on '{}' API endpoint." \
+                       .format(request.url.split("?")[0])
+    }
+    response = jsonify(data)
+    response.status_code = 400
+    return response
+
+#
+# @app.route("/api/items/json")
+# def getItemsJSON():
+#     return
+
+@app.route("/api/categories/json")
+def getCategoriesJSON():
+    if "category_id" in request.args:
+        category_id = request.args["category_id"]
+        items = session.query(Item).filter_by(category_id=category_id).all()
+        return jsonify(ResponseData=[item.serialize for item in items])
+    else:
+        return badRequestError()
 
 if __name__ == "__main__":
     app.secret_key = str(uuid.uuid4());
