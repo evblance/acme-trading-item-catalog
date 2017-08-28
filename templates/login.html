@@ -12,8 +12,8 @@
 {% endif %}
 {% endwith %}
 
-
-<form class="form--login" action="/login" method="post">
+<!-- TODO: Server-side authentication  -->
+<!-- <form class="form--login" action="/login" method="post">
   <h3 class="form--login__heading">ACME Admin</h3>
   <fieldset class="form-group">
     <label class="form--login__label" for="username">Username</label>
@@ -22,9 +22,47 @@
     <input class="form-control" name="password" type="password">
   </fieldset>
   <button class="btn form--login__submit" type="submit">Login</button>
-</form>
+</form> -->
 <div class="g-login">
   <h4 class="g-login__heading">Log in with Google</h4>
+  <a class="g-login__link" href="{{ url_for('googleLogin') }}">
+    <span class="g-signin"
+        data-scope="openid email"
+        data-clientid="1051477773035-ea063h5j494p9o2hud81m6tk8u320l1o.apps.googleusercontent.com"
+        data-redirecturi="postmessage"
+        data-accesstype="offline"
+        data-cookiepolicy="single_host_origin"
+        data-callback="signInCallback"
+        data-approvalprompt="force"></span>
+  </a>
+  <span class="g-login__message alert-info"></span>
 </div>
+<script src="//apis.google.com/js/platform.js?onload=start" async defer></script>
+<script>
+  function signInCallback(authResult) {
+    if (authResult['code']) {
+      $.ajax({
+        type: 'POST',
+        url: '/oauth2/google/signin?state={{ STATE }}',
+        processData: false,
+        contentType: 'application/octet-stream; charset=utf-8',
+        data: authResult['code'],
+        success: function(res) {
+          if (res) {
+            $('.g-login__message').html('Login Successful! Redirecting...');
+            setTimeout(function() {
+              window.location.href = "/";
+            }, 3000);
+          } else if (authResult['error']) {
+            console.log('Google OAUTH2 gave an error: ' + authResult['error']);
+          } else {
+            $('.g-login_message').html('Failed to make call to Google\'s servers. Check console log for more info.');
+          }
+        },
+
+      });
+    }
+  }
+</script>
 
 {% endblock %}

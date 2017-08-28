@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-from flask import Flask, abort, url_for, jsonify, flash, json, redirect, \
-                  render_template, request
+from flask import Flask, abort, url_for, jsonify, flash, make_response, \
+                  redirect, render_template, request, session
 from werkzeug import secure_filename
 
 app = Flask(__name__)
+# APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+app.config["IMG_DIR"] = "static/images"
 
 from models import Base, Item, Category
 from sqlalchemy import create_engine
@@ -12,54 +14,217 @@ from sqlalchemy.orm import sessionmaker
 engine = create_engine("sqlite:///item_catalog.db")
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
-session = DBSession()
+db_session = DBSession()
 
 import os
 import uuid
+import json
+from httplib2 import Http
+import requests
 
-# APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-app.config["IMG_DIR"] = "static/images"
+from oauth2client.client import flow_from_clientsecrets, FlowExchangeError, \
+                                OAuth2Credentials
 
-USER = { "username": "evblance", "password": "admin" }
+###################
+#### CONSTANTS ####
+###################
+
 TITLE = "ACME Trading"
+TOKEN_CHK_BASE_URL = \
+    "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
+TOKEN_REVOKE_BASE_URL = \
+    "https://accounts.google.com/o/oauth2/revoke?token={}"
+USER_INFO_URL = \
+    "https://www.googleapis.com/oauth2/v1/userinfo"
 
-logged_in = False
+with open("data/client_secret.json", "r") as gcs:
+    G_CLIENT_SECRET = json.loads(gcs.read())["web"]["client_id"]
 
+
+##########################
+#### HELPER FUNCTIONS ####
+##########################
+
+def makeRespObj(status_code, message):
+    return {
+        "status": status_code,
+        "message": message
+    }
+
+def generateSessionToken():
+    uuid_1 = str(uuid.uuid4())
+    uuid_2 = str(uuid.uuid4())
+    return (uuid_1 + uuid_2).replace("-", "")
+
+#####################
+#### AUTH ROUTES ####
+#####################
+
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    # Set a new state for the login session
+    session["state"] = generateSessionToken()
+
+    # TODO: Server-side authentication
+    # if request.method == "POST":
+    #     username = request.form["username"]
+    #     password = request.form["password"]
+    #     if (username == USER["username"]) and (password == USER["password"]):
+    #         return redirect(url_for("home"))
+    #     flash("Incorrect username or password.")
+    #     return render_template("login.html", title=TITLE)
+
+    if request.method == "GET":
+        return render_template("login.html",
+                               title=TITLE,
+                               STATE=session["state"])
+
+# TODO: Implement after adding server-side authentication code
+# @app.route("/logout", methods=["POST", "GET"])
+# def logout():
+#     # NOTE: Needs to redirect to Google signout route if the user is logged
+#     #       in via OAuth2 through this provider.
+#     return render_template("login.html")
+
+# Route for handling Google OAuth2 signin
+@app.route("/oauth2/google/signin", methods=["POST"])
+def googleLogin():
+    print("CHECKING STATE TOKEN \n")
+    if request.args.get("state") != session["state"]:
+        resp_data = makeRespObj(401, "Invalid state parameter.")
+        response = jsonify(resp_data)
+        response.status_code = 401
+        return response
+    print("Success\n")
+    print("ATTEMPTING AUTH CODE UPGRADE TO CREDENTIALS...\n")
+    auth_code = request.data
+    try:
+        # Upgrade the auth code into a credentials object
+        oauth_flow = flow_from_clientsecrets("data/client_secret.json",
+                                             scope="",
+                                             redirect_uri="postmessage")
+
+        credentials = oauth_flow.step2_exchange(auth_code)
+    except FlowExchangeError:
+        resp_data = makeRespObj(401, "Failed to upgrade auth code.")
+        response = jsonify(resp_data)
+        response.status_code = 401
+        return response
+    print("Success\n")
+    # Check validity of access token
+    access_token = credentials.access_token
+    print("ACCESS TOKEN IS: {} \n".format(access_token))
+    chk_url = TOKEN_CHK_BASE_URL.format(access_token)
+    chk_result = json.loads(Http().request(chk_url, "GET")[1])
+    print("CHECKING VALIDITY OF ACCESS TOKEN...\n")
+    # Abort if access token not valid
+    if chk_result.get("error") is not None:
+        resp_data = makeRespObj(500, chk_result.get("error"))
+        response = jsonify(resp_data)
+        response.status_code = 500
+        return response
+    print("Passed\n")
+    print("CHECKING TOKEN IS BEING USED BY INTENDED USER...\n")
+    # Verify that the access token is being used by the intended user
+    google_id = credentials.id_token["sub"]
+    if chk_result["user_id"] != google_id:
+        resp_data = makeRespObj(401, "Mismatched token and user IDs.")
+        response = jsonify(resp_data)
+        response.status_code = 401
+        return response
+    print("Passed\n")
+    print("CHECKING THAT ACCESS TOKEN IS VALID FOR THIS APPLICATION...\n")
+    # Verify that access token is valid for this application
+    if chk_result["issued_to"] != G_CLIENT_SECRET:
+        resp_data = makeRespObj(401, "Mismatched token and application IDs.")
+        response = jsonify(resp_data)
+        response.status_code = 401
+        return response
+    print("Passed\n")
+    print("CHECKING THAT USER IS NOT ALREADY LOGGED IN...\n")
+    # Verify that the user is not already logged in so session variables do
+    # not get unnecessarily reset
+    saved_credentials = session.get("credentials")
+    saved_google_id = session.get("google_id")
+    if (saved_credentials is not None) and (google_id == saved_google_id):
+        resp_data = makeRespObj(200, "Current user is already logged in.")
+        response = jsonify(resp_data)
+        response.status_code = 200
+        return response
+    print("Passed\n")
+    print("STORING ACCESS TOKEN IN SESSION OBJECT...\n")
+    # Store access token in session object
+    session["credentials"] = credentials.access_token
+    session["google_id"] = google_id
+    print("Done\n")
+    print("OBTAINING USER INFORMATION...\n")
+    # Obtain user information
+    params = {
+        "access_token": session["credentials"],
+        "alt": "json"
+    }
+    response = requests.get(USER_INFO_URL, params=params)
+    user_data = json.loads(response.text)
+    print("USER DATA IS: {}".format(user_data))
+    print("STORING USER DATA IN SESSION...\n")
+    # Store user information in session
+    session["email"] = user_data["email"]
+    print("User email is: {}\n".format(session["email"]))
+    print("Redirecting\n")
+    # flash("You are logged in via OAuth2 as: {}".format(session["email"]))
+    return redirect(url_for("home"))
+
+# Route for handling Google OAuth2 signout
+@app.route("/oauth2/google/signout")
+def googleLogout():
+    # Only attempt logout if a user is connected
+    access_token = session.get("credentials")
+    if access_token is None:
+        resp_data = makeRespObj(401, "Current user is not logged in.")
+        response = jsonify(resp_data)
+        response.status_code = 401
+        return response
+
+    revoke_url = TOKEN_REVOKE_BASE_URL.format(access_token)
+    revoke_result = Http().request(revoke_url, "GET")[0]
+    # Revoke access token
+    if revoke_result["status"] == "200":
+        # Reset the user session
+        del session["credentials"]
+        del session["google_id"]
+        del session["email"]
+        resp_data = makeRespObj("Logged out successfully.", 200)
+        response = jsonify(resp_data)
+        response.status_code = 200
+        return response
+    else:
+        # Respond that the token was invalid
+        resp_data = makeRespObj("Failed to revoke token for given user.", 400)
+        response = jsonify(resp_data)
+        response.status_code = 400
+        return response
+
+
+
+#####################
 #### HTML ROUTES ####
+#####################
 
 @app.route("/")
 @app.route("/index")
 def home():
     subheading = "Browse Catalog"
-    categories = session.query(Category).all()
+    categories = db_session.query(Category).all()
     return render_template("index.html",
                            title=TITLE,
                            subheading=subheading,
-                           categories=categories,
-                           logged_in=logged_in)
-
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        if (username == USER["username"]) and (password == USER["password"]):
-            logged_in = True
-            return redirect(url_for("home"))
-        flash("Incorrect username or password.")
-        return render_template("login.html", title=TITLE)
-    if request.method == "GET":
-        return render_template("login.html", title=TITLE)
-
-@app.route("/logout", methods=["POST", "GET"])
-def logout():
-    return render_template("login.html")
+                           categories=categories)
 
 
 @app.route("/category/<int:category_id>")
 def displayCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(category=category).all()
+    category = db_session.query(Category).filter_by(id=category_id).one()
+    items = db_session.query(Item).filter_by(category=category).all()
     subheading = "Displaying items for category '" + category.name + "'"
     return render_template("category.html",
                            title=TITLE,
@@ -70,10 +235,10 @@ def displayCategory(category_id):
 # Route for adding items
 @app.route("/items/<int:category_id>/add", methods=["POST", "GET"])
 def addItems(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
+    category = db_session.query(Category).filter_by(id=category_id).one()
     subheading = "Add items for category '{category}' (id: {id})" \
                      .format(category=category.name, id=category_id)
-    last_item = session.query(Item).order_by(Item.id.desc()).first()
+    last_item = db_session.query(Item).order_by(Item.id.desc()).first()
     image_dir = app.config["IMG_DIR"] \
                 + "/categories/" \
                 + str(category_id) \
@@ -98,8 +263,8 @@ def addItems(category_id):
             uploaded_image.save(os.path.join(image_dir, safe_image))
             new_item.image = os.path.join(image_dir, safe_image)
 
-        session.add(new_item)
-        session.commit()
+        db_session.add(new_item)
+        db_session.commit()
         flash("Successfully added item '{}'.".format(new_item.name))
         return redirect(url_for("displayCategory", category_id=category_id))
 
@@ -115,8 +280,8 @@ def addItems(category_id):
 # Route for updating item data
 @app.route("/items/update/<int:category_id>/<int:item_id>", methods=["POST", "GET"])
 def updateItem(item_id, category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    item = session.query(Item).filter_by(id=item_id).one()
+    category = db_session.query(Category).filter_by(id=category_id).one()
+    item = db_session.query(Item).filter_by(id=item_id).one()
     subheading = """
                  Updating item '{item_name}' (id: {item_id}) in category
                  '{cat_name}' (id: {cat_id})
@@ -161,8 +326,8 @@ def updateItem(item_id, category_id):
             uploaded_image.save(os.path.join(image_dir, safe_image))
             item.image = os.path.join(image_dir, safe_image)
 
-        session.add(item)
-        session.commit()
+        db_session.add(item)
+        db_session.commit()
         flash("Successfully updated item '{}'.".format(item.name))
         return redirect(url_for("displayCategory", category_id=category_id))
 
@@ -179,8 +344,8 @@ def updateItem(item_id, category_id):
 # Route for deleting items
 @app.route("/items/delete/<int:category_id>/<int:item_id>", methods=["POST", "GET"])
 def deleteItem(item_id, category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    item = session.query(Item).filter_by(id=item_id).one()
+    category = db_session.query(Category).filter_by(id=category_id).one()
+    item = db_session.query(Item).filter_by(id=item_id).one()
     subheading = """
                  Deleting '{item_name}' (id: {item_id}") from category
                  '{cat_name}' (id: {cat_id}).
@@ -189,8 +354,8 @@ def deleteItem(item_id, category_id):
 
     if request.method == "POST":
         # delete the item
-        session.delete(item)
-        session.commit()
+        db_session.delete(item)
+        db_session.commit()
         flash("Successfully deleted item '{}'.".format(item.name))
         return redirect(url_for("displayCategory", category_id=category_id))
 
@@ -209,7 +374,7 @@ def deleteItem(item_id, category_id):
 @app.route("/categories/add", methods=["POST", "GET"])
 def addCategories():
     subheading = "Add categories"
-    last_category = session.query(Category).order_by(Category.id.desc()).first()
+    last_category = db_session.query(Category).order_by(Category.id.desc()).first()
     image_dir = app.config["IMG_DIR"] \
                 + "/categories/" \
                 + str(last_category.id + 1) + "/"
@@ -227,8 +392,8 @@ def addCategories():
             uploaded_image.save(os.path.join(image_dir, safe_image))
             new_category.image = os.path.join(image_dir, safe_image)
 
-        session.add(new_category)
-        session.commit()
+        db_session.add(new_category)
+        db_session.commit()
         flash("Successfully added category '{}'.".format(new_category.name))
         return redirect(url_for("home"))
 
@@ -243,7 +408,7 @@ def addCategories():
 # Route for updating category data
 @app.route("/categories/update/<int:category_id>", methods=["POST", "GET"])
 def updateCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
+    category = db_session.query(Category).filter_by(id=category_id).one()
     subheading = "Updating category '{name}' (id: {id})" \
                      .format(name=category.name, id=category_id)
 
@@ -271,8 +436,8 @@ def updateCategory(category_id):
             uploaded_image.save(os.path.join(image_dir, safe_image))
             category.image = os.path.join(image_dir, safe_image)
 
-        session.add(category)
-        session.commit()
+        db_session.add(category)
+        db_session.commit()
         flash("Successfully updated category '{}'.".format(category.name))
         return redirect(url_for("home"));
 
@@ -287,20 +452,20 @@ def updateCategory(category_id):
 
 @app.route("/categories/delete/<int:category_id>", methods=["POST", "GET"])
 def deleteCategory(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    category_items = session.query(Item).filter_by(category_id=category_id).all()
+    category = db_session.query(Category).filter_by(id=category_id).one()
+    category_items = db_session.query(Item).filter_by(category_id=category_id).all()
     subheading = "Deleting category '{name}' (id: {id})" \
                      .format(name=category.name, id=category_id)
 
     if request.method == "POST":
 
         # delete the category...
-        session.delete(category)
+        db_session.delete(category)
         # ...followed by all items in the category
         for item in category_items:
-            session.delete(item)
+            db_session.delete(item)
 
-        session.commit()
+        db_session.commit()
         flash("Successfully deleted category '{}'.".format(category.name))
         return redirect(url_for("home"));
 
@@ -318,17 +483,18 @@ def deleteCategory(category_id):
     else:
         return abort(400)
 
-
+####################
 #### API ROUTES ####
+####################
 
 @app.errorhandler(400)
 def badRequestError():
-    data = {
+    resp_data = {
         "status": 400,
         "message": "Bad route on '{}' API endpoint." \
                        .format(request.url.split("?")[0])
     }
-    response = jsonify(data)
+    response = jsonify(resp_data)
     response.status_code = 400
     return response
 
@@ -341,7 +507,7 @@ def badRequestError():
 def getCategoriesJSON():
     if "category_id" in request.args:
         category_id = request.args["category_id"]
-        items = session.query(Item).filter_by(category_id=category_id).all()
+        items = db_session.query(Item).filter_by(category_id=category_id).all()
         return jsonify(ResponseData=[item.serialize for item in items])
     else:
         return badRequestError()
