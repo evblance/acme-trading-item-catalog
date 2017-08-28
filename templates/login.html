@@ -47,6 +47,9 @@
         processData: false,
         contentType: 'application/octet-stream; charset=utf-8',
         data: authResult['code'],
+        beforeSend: function() {
+          $('.g-login__message').html("Working...");
+        },
         success: function(res) {
           if (res) {
             $('.g-login__message').html('Login Successful! Redirecting...');
@@ -56,7 +59,7 @@
           } else if (authResult['error']) {
             console.log('Google OAUTH2 gave an error: ' + authResult['error']);
           } else {
-            $('.g-login_message').html('Failed to make call to Google\'s servers. Check console log for more info.');
+            $('.g-login__message').html('Failed to make call to Google\'s servers. Check console log for more info.');
           }
         },
 
