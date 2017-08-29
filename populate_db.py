@@ -289,7 +289,7 @@ for i in hardware_items:
     session.commit()
 
 appliances = categories[3]
-image_file = "static/images/categories/4/appliances.jpg"
+image_file = "static/images/categories/4/appliances.jpeg"
 category = Category(name=appliances, image=image_file)
 session.add(category)
 session.commit()
