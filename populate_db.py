@@ -259,8 +259,8 @@ for i in electronics_items:
     session.commit()
 
 kitchenware = categories[1]
-category = Category(name=kitchenware, image=image_file)
 image_file = "static/images/categories/2/kitchenware.jpeg"
+category = Category(name=kitchenware, image=image_file)
 session.add(category)
 session.commit()
 for i in kitchenware_items:
