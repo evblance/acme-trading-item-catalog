@@ -260,7 +260,7 @@ for i in electronics_items:
 
 kitchenware = categories[1]
 category = Category(name=kitchenware, image=image_file)
-image_file = "static/images/categories/2/kitchenware.jpg"
+image_file = "static/images/categories/2/kitchenware.jpeg"
 session.add(category)
 session.commit()
 for i in kitchenware_items:
@@ -319,7 +319,7 @@ for i in apparel_items:
     session.commit()
 
 musical_instruments = categories[5]
-image_file = "static/images/categories/6/musical_instruments.jpg"
+image_file = "static/images/categories/6/musical_instruments.jpeg"
 category = Category(name=musical_instruments, image=image_file)
 session.add(category)
 session.commit()
@@ -334,7 +334,7 @@ for i in musical_instruments_items:
     session.commit()
 
 furniture = categories[6]
-image_file = "static/images/categories/7/furniture.jpg"
+image_file = "static/images/categories/7/furniture.jpeg"
 category = Category(name=furniture, image=image_file)
 session.add(category)
 session.commit()
@@ -349,7 +349,7 @@ for i in furniture_items:
     session.commit()
 
 medical_consumables = categories[7]
-image_file = "static/images/categories/8/medical_consumables.jpg"
+image_file = "static/images/categories/8/medical_consumables.jpeg"
 category = Category(name=medical_consumables, image=image_file)
 session.add(category)
 session.commit()
