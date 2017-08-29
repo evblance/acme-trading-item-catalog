@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-#### This file populates the item catalog with some sample data ####
+##############################################################
+# This file populates the item catalog with some sample data #
+##############################################################
 
 from models import Base, Item, Category
 
@@ -10,14 +12,12 @@ from sqlalchemy.orm import sessionmaker
 engine = create_engine("sqlite:///item_catalog.db")
 Base.metadata.bind = engine
 
-DBSession = sessionmaker(bind = engine)
+DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 categories = ["Electronics", "Kitchenware", "Hardware",
               "Appliances", "Apparel", "Musical Instruments",
               "Furniture", "Medical Consumables", "Food"]
-
-
 
 electronics_items = [
     {
@@ -36,7 +36,10 @@ electronics_items = [
     },
     {
         "name": "CRT Monitor",
-        "description": "Great value for gamers interested in zero-latency performance.",
+        "description": """
+                       Great value for gamers interested in zero-latency
+                       performance.
+                       """,
         "price": "$10",
         "stock": 11,
         "category": "Electronics"
@@ -46,7 +49,10 @@ electronics_items = [
 kitchenware_items = [
     {
         "name": "Large Teaspoon",
-        "description": "An oversized teaspoon perfect for those who hate small teaspoons.",
+        "description": """
+                       An oversized teaspoon perfect for those who hate
+                       small teaspoons.
+                       """,
         "price": "$4",
         "stock": 30,
         "category": "Kitchenware"
@@ -85,21 +91,31 @@ kitchenware_items = [
 hardware_items = [
     {
         "name": "Rusty Hammer",
-        "description": "Will add complementary rust marks to every object it comes into contact with.",
+        "description": """
+                       Will add complementary rust marks to every object
+                       it comes into contact with.
+                       """,
         "price": "$12",
         "stock": 7,
         "category": "Hardware"
     },
     {
         "name": "'Bitten Apple' Screwdriver",
-        "description": "Indispensable tool for servicing a popular modern smartphone.",
+        "description": """
+                       Indispensable tool for servicing a popular
+                       modern smartphone.
+                       """,
         "price": "$15",
         "stock": 99,
         "category": "Hardware"
     },
     {
         "name": "Screw (Random gauge)",
-        "description": "Buy in bulk and you will never again have to worry about having the right screw size for your project.",
+        "description": """
+                       Buy in bulk and you will never again have to
+                       worry about having the right screw size for
+                       your project.
+                       """,
         "price": "$1",
         "stock": 2000,
         "category": "Hardware"
@@ -116,21 +132,30 @@ appliances_items = [
     },
     {
         "name": "Automatic Dishwasher",
-        "description": "Machanically washes the dishes for your household. Disclaimer: May scratch your glasses and crockery.",
+        "description": """
+                       Machanically washes the dishes for your household.
+                       Disclaimer: May scratch your glasses and crockery.
+                       """,
         "price": "$230",
         "stock": 5,
         "category": "Appliances"
     },
     {
         "name": "Ex-German Washing Machine",
-        "description": "Manufactured in China to reduce costs, which may or may not have been passed on to the customer.",
+        "description": """
+                       Manufactured in China to reduce costs, which may or
+                       may not have been passed on to the customer.
+                       """,
         "price": "$600",
         "stock": 18,
         "category": "Appliances"
     },
     {
         "name": "Modded Sandwich Maker",
-        "description": "Will toast a sandwich in less time than it takes you to read this description.",
+        "description": """
+                       Will toast a sandwich in less time than it takes
+                       you to read this description.
+                       """,
         "price": "$20",
         "stock": 1,
         "category": "Appliances"
@@ -144,7 +169,10 @@ appliances_items = [
     },
     {
         "name": "4K LCD TV",
-        "description": "Absolutely useless 'Down Under', no matter what the marketing hype tells you.",
+        "description": """
+                       Absolutely useless 'Down Under', no matter what the
+                       marketing hype tells you.
+                       """,
         "price": "$1200",
         "stock": 12,
         "category": "Appliances"
@@ -168,7 +196,10 @@ apparel_items = [
     },
     {
         "name": "Faded Jeans",
-        "description": "Unisex and well worn. The label says <read-error>evi's.",
+        "description": """
+                       Unisex and well worn. The label says
+                       <read-error>evi's.
+                       """,
         "price": "$30",
         "stock": 1,
         "category": "Apparel"
@@ -212,14 +243,19 @@ furniture_items = [
 medical_consumables_items = [
     {
         "name": "Sticky-Aid Kit",
-        "description": "Will aid in dressing the occasional cuts and bruises.",
+        "description": """
+                       Will aid in dressing the occasional cuts and bruises.
+                       """,
         "price": "$8",
         "stock": 12,
         "category": "Medical Consumables"
     },
     {
         "name": "Mentats",
-        "description": "A rather addictive stimulant best used in times of nuclear fallout. Each pack contains 8 tablets.",
+        "description": """
+                       A rather addictive stimulant best used in times of
+                       nuclear fallout. Each pack contains 8 tablets.
+                       """,
         "price": "$11",
         "stock": 55,
         "category": "Medical Consumables"
@@ -229,14 +265,22 @@ medical_consumables_items = [
 food_items = [
     {
         "name": "Spam & Eggs",
-        "description": "Canned food perfect for a nuclear winter. Also great for keeping pythons happy.",
+        "description": """
+                       Canned food perfect for a nuclear winter.
+                       Also great for keeping pythons happy.
+                       """,
         "price": "$5",
         "stock": 8,
         "category": "Food"
     },
     {
         "name": "Bayern Bier",
-        "description": "Poured into a goblet, the beer offers some amazing head retention and rings of white lace sticking to the glass after each sip. Good clarity, with a dull golden color.",
+        "description": """
+                       Poured into a goblet, the beer offers some amazing
+                       head retention and rings of white lace sticking to
+                       the glass after each sip. Good clarity, with a dull
+                       golden color.
+                       """,
         "price": "$7",
         "stock": 48,
         "category": "Food"
@@ -254,7 +298,11 @@ for i in electronics_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -269,7 +317,11 @@ for i in kitchenware_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -284,7 +336,11 @@ for i in hardware_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -299,7 +355,11 @@ for i in appliances_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -314,7 +374,11 @@ for i in apparel_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -329,7 +393,11 @@ for i in musical_instruments_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -344,7 +412,11 @@ for i in furniture_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -359,7 +431,11 @@ for i in medical_consumables_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()
 
@@ -374,6 +450,10 @@ for i in food_items:
     item_price = i["price"]
     item_category = i["category"]
     item_stock = i["stock"]
-    item = Item(name=item_name, description=item_description, price=item_price, stock=item_stock, category=category)
+    item = Item(name=item_name,
+                description=item_description,
+                price=item_price,
+                stock=item_stock,
+                category=category)
     session.add(item)
     session.commit()

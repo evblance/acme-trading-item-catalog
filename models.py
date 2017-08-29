@@ -23,6 +23,7 @@ class Category(Base):
             "name": self.name
         }
 
+
 class Item(Base):
     """ Table storing item information """
     __tablename__ = "item"
@@ -46,6 +47,7 @@ class Item(Base):
             "stock": self.stock,
             "category_id": self.category_id
         }
+
 
 class User(Base):
     """ Table storing authenticating user information """
