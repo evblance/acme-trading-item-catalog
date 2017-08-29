@@ -125,7 +125,14 @@ body {
 .footer {
   background: $footerBackgroundColor;
   color: $menuTextColor;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   height: $footerHeight;
+}
+
+.footer__legal {
+  margin: 0 20px 0;
 }
 
 
@@ -233,6 +240,8 @@ body {
 .g-login {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   margin-top: 50px;
 }
 
@@ -241,7 +250,7 @@ body {
 }
 
 .g-login__link {
-  display: flex;
+  display: inline;
   justify-content: center;
   margin: 20px 0;
 }
