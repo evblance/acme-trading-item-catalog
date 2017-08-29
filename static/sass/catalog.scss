@@ -358,7 +358,8 @@ body {
 }
 
 .list__item--categories__name {
-
+  display: inline-block;
+  background: white;
 }
 
 
@@ -400,5 +401,5 @@ body {
 .subheading {
   color: $textColor;
   font-size: 36px;
-  margin: 20px auto 30px 15px;
+  margin: 20px 0 30px 15px;
 }
