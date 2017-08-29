@@ -2,35 +2,39 @@
 {% extends "main.html" %}
 {% block content %}
 
-<h2 class="subheading">{{ subheading }}</h2>
+<div class="container">
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="container"><p class="alert alert-danger">{{ message }}</p></div>
-{% endfor %}
-{% endif %}
-{% endwith %}
+  <h2 class="subheading">{{ subheading }}</h2>
 
-<form class="form--add"
-      action="{{ url_for('addItems', category_id=category.id) }}"
-      enctype="multipart/form-data"
-      method="post">
-  <fieldset class="form-group">
-    <label class="form--update__label" for="name">Name</label>
-    <input class="form-control" name="name" type="text" required>
-    <label class="form--update__label" for="price">Price ($)</label>
-    <input class="form-control input--currency" name="price" type="text" required>
-    <label class="form--update__label" for="stock">Stock</label>
-    <input class="form-control" name="stock" type="number" required>
-    <label class="form--update__label" for="description">Description</label>
-    <textarea class="form-control" name="description" rows=8></textarea>
-    <label class="form--update__label" for="image">Upload image</label>
-    <input class="form-control" name="image" type="file" readonly>
-  </fieldset>
-  <button class="btn btn-success form--add__submit" type="submit">Add</button>
-  <a href="{{ url_for('displayCategory', category_id=category.id) }}"
-     class="btn form--add__cancel">Cancel</a>
-</form>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  {% for message in messages %}
+  <div class="container"><p class="alert alert-danger">{{ message }}</p></div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <form class="form--add"
+        action="{{ url_for('addItems', category_id=category.id) }}"
+        enctype="multipart/form-data"
+        method="post">
+    <fieldset class="form-group">
+      <label class="form--update__label" for="name">Name</label>
+      <input class="form-control" name="name" type="text" required>
+      <label class="form--update__label" for="price">Price ($)</label>
+      <input class="form-control input--currency" name="price" type="text" required>
+      <label class="form--update__label" for="stock">Stock</label>
+      <input class="form-control" name="stock" type="number" required>
+      <label class="form--update__label" for="description">Description</label>
+      <textarea class="form-control" name="description" rows=8></textarea>
+      <label class="form--update__label" for="image">Upload image</label>
+      <input class="form-control" name="image" type="file" readonly>
+    </fieldset>
+    <button class="btn btn-success form--add__submit" type="submit">Add</button>
+    <a href="{{ url_for('displayCategory', category_id=category.id) }}"
+       class="btn form--add__cancel">Cancel</a>
+  </form>
+
+</div>
 
 {% endblock %}

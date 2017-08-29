@@ -2,28 +2,32 @@
 {% extends "main.html" %}
 {% block content %}
 
-<h2 class="subheading">{{ subheading }}</h2>
+<div class="container">
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="container"><p class="alert alert-danger">{{ message }}</p></div>
-{% endfor %}
-{% endif %}
-{% endwith %}
+  <h2 class="subheading">{{ subheading }}</h2>
 
-<form class="form--update"
-      action="{{ url_for('updateCategory', category_id=category.id) }}"
-      enctype="multipart/form-data"
-      method="post">
-  <fieldset class="form-group">
-    <label class="form--update__label" for="name">Name</label>
-    <input class="form-control" name="name" type="text">
-    <label class="form--update__label" for="image">Upload image</label>
-    <input class="form-control" name="image" type="file" readonly>
-  </fieldset>
-  <button class="btn btn-info form--update__submit" type="submit">Update</button>
-  <a href="{{ url_for('home') }}" class="btn form--update__cancel">Cancel</a>
-</form>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  {% for message in messages %}
+  <div class="container"><p class="alert alert-danger">{{ message }}</p></div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <form class="form--update"
+        action="{{ url_for('updateCategory', category_id=category.id) }}"
+        enctype="multipart/form-data"
+        method="post">
+    <fieldset class="form-group">
+      <label class="form--update__label" for="name">Name</label>
+      <input class="form-control" name="name" type="text">
+      <label class="form--update__label" for="image">Upload image</label>
+      <input class="form-control" name="image" type="file" readonly>
+    </fieldset>
+    <button class="btn btn-info form--update__submit" type="submit">Update</button>
+    <a href="{{ url_for('home') }}" class="btn form--update__cancel">Cancel</a>
+  </form>
+
+</div>
 
 {% endblock %}
