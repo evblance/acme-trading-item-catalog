@@ -180,10 +180,11 @@ body {
 }
 
 .btn--add {
-  position: relative;
-  right: 10px;
-  bottom: 60px;
-  float: right;
+  display: inline-block;
+}
+
+.flash {
+  margin: 10px;
 }
 
 .form--login {
@@ -273,6 +274,7 @@ body {
 
 .item__header {
   display: flex;
+  flex-wrap: wrap;
   font-size: 24px;
   justify-content: space-between;
 }
@@ -283,9 +285,14 @@ body {
   margin: 15px auto 0;
 }
 
+.item__price {
+  margin-right: 10px;
+}
+
 .item__stock {
-  display: flex;
   align-items: center;
+  display: flex;
+  font-size: 18px;
 }
 
 .input--currency {

@@ -3,13 +3,13 @@
 {% block content %}
 
 <div class="container">
-  
+
   <h2 class="subheading">{{ subheading }}</h2>
 
   {% with messages = get_flashed_messages() %}
   {% if messages %}
   {% for message in messages %}
-  <div class="container"><p class="alert alert-danger">{{ message }}</p></div>
+  <div class="container flash"><p class="alert alert-danger">{{ message }}</p></div>
   {% endfor %}
   {% endif %}
   {% endwith %}
