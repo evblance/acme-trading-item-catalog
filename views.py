@@ -576,7 +576,7 @@ def getCategoriesJSON():
                 categories = db_session.query(Category).filter(
                                  Category.name.like("%{}%".format(request.args["query"]))
                              )
-                response = jsonify(Categories=[category.serialize for category in categories])
+                response = jsonify(QueryCategories=[category.serialize for category in categories])
                 response.status_code = 200
                 return response
             except NoResultFound:
@@ -601,7 +601,7 @@ def getCategoriesJSON():
         # Attempt successful return of a category by ID
         try:
             category = db_session.query(Category).filter_by(id=request.args["id"]).one()
-            response = jsonify(Categories=[category.serialize])
+            response = jsonify(Category=[category.serialize])
             response.status_code = 200
             return response
         except NoResultFound:
@@ -652,7 +652,7 @@ def getItemsJSON():
             try:
                 items = db_session.query(Item).filter(
                             Item.name.like("%{}%".format(request.args["query"])))
-                response = jsonify(Items=[item.serialize for item in items])
+                response = jsonify(QueryItems=[item.serialize for item in items])
                 response.status_code = 200
                 return response
             except NoResultFound:
