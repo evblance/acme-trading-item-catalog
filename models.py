@@ -47,8 +47,13 @@ class Item(Base):
             "category_id": self.category_id
         }
 
-
-
+class User(Base):
+    """ Table storing authenticating user information """
+    __tablename__ = "user"
+    id = Column(Integer, primary_key=True)
+    username = Column(String, nullable=False, unique=True)
+    # TODO: password_hash = Column(String, nullable=False)
+    g_access_token_hash = Column(String)
 
 
 ###################################################
