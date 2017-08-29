@@ -231,11 +231,24 @@ body {
 }
 
 .g-login {
-  // TODO: GOOGLE LOGIN BUTTON
+  display: flex;
+  flex-direction: column;
+  margin-top: 50px;
 }
 
 .g-login__heading {
   text-align: center;
+}
+
+.g-login__link {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.g-login__message {
+  text-align: center;
+  margin: 0 auto;
 }
 
 .item {
@@ -355,7 +368,7 @@ body {
 
 .login__link {
   color: $menuTextColor;
-  display: block;
+  display: inline-block;
   text-decoration: none;
   height: 100%;
   line-height: $menuHeight;
@@ -363,8 +376,11 @@ body {
 
   &:hover {
     color: $menuHoverColor;
-    text-decoration: none;
   }
+}
+
+.logged-in-as {
+  color: $menuTextColor;
 }
 
 .main {

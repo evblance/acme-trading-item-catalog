@@ -3,7 +3,7 @@
 {% block content %}
 
 <h2 class="subheading">{{ subheading }}</h2>
-<a class="btn btn-info btn--add"
+<a class="btn btn-success btn--add"
    href="{{ url_for('addItems', category_id=category.id) }}">Add Items</a>
 
 {% with messages = get_flashed_messages() %}
@@ -32,11 +32,13 @@
         </div>
       </div>
       <p class="item__description">{{ item.description }}</p>
+      {% if session["email"] %}
       <div class="admin-panel--item">
         <a class="admin-panel--item__update" href="{{ url_for('updateItem', item_id=item.id, category_id=category.id) }}">Update</a>
         <span>|</span>
         <a class="admin-panel--item__delete" href="{{ url_for('deleteItem', item_id=item.id, category_id=category.id) }}">Delete</a>
       </div>
+      {% endif %}
     </article>
   </li>
   {% endfor %}

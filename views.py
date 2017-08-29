@@ -8,9 +8,10 @@ app = Flask(__name__)
 # APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 app.config["IMG_DIR"] = "static/images"
 
-from models import Base, Item, Category
+from models import Base, Item, Category, User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 engine = create_engine("sqlite:///item_catalog.db")
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
@@ -25,6 +26,15 @@ import requests
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError, \
                                 OAuth2Credentials
 
+from flask_httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
+# from flask_login import LoginManager, login_user, logout_user, current_user, \
+#                         login_required
+from flask_bcrypt import Bcrypt
+bcrypt = Bcrypt(app)
+
+
+
 ###################
 #### CONSTANTS ####
 ###################
@@ -36,6 +46,8 @@ TOKEN_REVOKE_BASE_URL = \
     "https://accounts.google.com/o/oauth2/revoke?token={}"
 USER_INFO_URL = \
     "https://www.googleapis.com/oauth2/v1/userinfo"
+
+LOGIN_VIEW = "login"
 
 with open("data/client_secret.json", "r") as gcs:
     G_CLIENT_SECRET = json.loads(gcs.read())["web"]["client_id"]
@@ -55,6 +67,20 @@ def generateSessionToken():
     uuid_1 = str(uuid.uuid4())
     uuid_2 = str(uuid.uuid4())
     return (uuid_1 + uuid_2).replace("-", "")
+
+def requireLogin():
+    """ Function that returns True if user is not logged in """
+    try:
+        username = session["email"]
+        print("requireLogin got username: {}".format(username))
+        # must also check credentials here to see if token is still valid
+    except KeyError:
+        print("requireLogin could not find a username.")
+        print("requireLogin will return: True")
+        flash("You must log in to continue.")
+        return True
+    print("requireLogin will return: False")
+    return False
 
 #####################
 #### AUTH ROUTES ####
@@ -79,12 +105,12 @@ def login():
                                title=TITLE,
                                STATE=session["state"])
 
-# TODO: Implement after adding server-side authentication code
-# @app.route("/logout", methods=["POST", "GET"])
-# def logout():
-#     # NOTE: Needs to redirect to Google signout route if the user is logged
-#     #       in via OAuth2 through this provider.
-#     return render_template("login.html")
+@app.route("/logout", methods=["POST", "GET"])
+def logout():
+    # TODO: Add code to handle possibility of server-side authentication
+    # NOTE: Needs to redirect to Google signout route if the user is logged
+    #       in via OAuth2 through this provider.
+    return redirect(url_for("googleLogout"))
 
 # Route for handling Google OAuth2 signin
 @app.route("/oauth2/google/signin", methods=["POST"])
@@ -142,6 +168,7 @@ def googleLogin():
         return response
     print("Passed\n")
     print("CHECKING THAT USER IS NOT ALREADY LOGGED IN...\n")
+    # TODO: Check access token is till valid in database by comparing hash of credentials
     # Verify that the user is not already logged in so session variables do
     # not get unnecessarily reset
     saved_credentials = session.get("credentials")
@@ -167,6 +194,24 @@ def googleLogin():
     user_data = json.loads(response.text)
     print("USER DATA IS: {}".format(user_data))
     print("STORING USER DATA IN SESSION...\n")
+
+
+    # # Update user access_token if user exists in DB
+    # try:
+    #     print("RENEWING USER ACCESS TOKEN IN DB...\n")
+    #     user = db_session.query(User).filter_by(username=user_data["email"]).one()
+    #     user.g_access_token_hash = bcrypt.generate_password_hash(session["credentials"])
+    #     db_session.commit()
+    # except NoResultFound:
+    #     # New user, so store under unique username (email) in database
+    #     print("CREATING NEW USER IN DB...\n")
+    #     user = User(
+    #         username=user_data["email"],
+    #         g_access_token_hash=bcrypt.generate_password_hash(session["credentials"]),
+    #         authenticated=1)
+    #     db_session.add(user)
+    #     db_session.commit()
+
     # Store user information in session
     session["email"] = user_data["email"]
     print("User email is: {}\n".format(session["email"]))
@@ -193,10 +238,9 @@ def googleLogout():
         del session["credentials"]
         del session["google_id"]
         del session["email"]
-        resp_data = makeRespObj("Logged out successfully.", 200)
-        response = jsonify(resp_data)
-        response.status_code = 200
-        return response
+        flash("Logged out was successfully.")
+        # Let the user know that their logout was successful on redirect
+        return redirect(url_for("home"))
     else:
         # Respond that the token was invalid
         resp_data = makeRespObj("Failed to revoke token for given user.", 400)
@@ -235,6 +279,8 @@ def displayCategory(category_id):
 # Route for adding items
 @app.route("/items/<int:category_id>/add", methods=["POST", "GET"])
 def addItems(category_id):
+    if requireLogin():
+        return redirect(url_for(LOGIN_VIEW))
     category = db_session.query(Category).filter_by(id=category_id).one()
     subheading = "Add items for category '{category}' (id: {id})" \
                      .format(category=category.name, id=category_id)
@@ -280,6 +326,8 @@ def addItems(category_id):
 # Route for updating item data
 @app.route("/items/update/<int:category_id>/<int:item_id>", methods=["POST", "GET"])
 def updateItem(item_id, category_id):
+    if requireLogin():
+        return redirect(url_for(LOGIN_VIEW))
     category = db_session.query(Category).filter_by(id=category_id).one()
     item = db_session.query(Item).filter_by(id=item_id).one()
     subheading = """
@@ -344,6 +392,8 @@ def updateItem(item_id, category_id):
 # Route for deleting items
 @app.route("/items/delete/<int:category_id>/<int:item_id>", methods=["POST", "GET"])
 def deleteItem(item_id, category_id):
+    if requireLogin():
+        return redirect(url_for(LOGIN_VIEW))
     category = db_session.query(Category).filter_by(id=category_id).one()
     item = db_session.query(Item).filter_by(id=item_id).one()
     subheading = """
@@ -373,6 +423,8 @@ def deleteItem(item_id, category_id):
 # Route for adding categories
 @app.route("/categories/add", methods=["POST", "GET"])
 def addCategories():
+    if requireLogin():
+        return redirect(url_for(LOGIN_VIEW))
     subheading = "Add categories"
     last_category = db_session.query(Category).order_by(Category.id.desc()).first()
     image_dir = app.config["IMG_DIR"] \
@@ -408,6 +460,8 @@ def addCategories():
 # Route for updating category data
 @app.route("/categories/update/<int:category_id>", methods=["POST", "GET"])
 def updateCategory(category_id):
+    if requireLogin():
+        return redirect(url_for(LOGIN_VIEW))
     category = db_session.query(Category).filter_by(id=category_id).one()
     subheading = "Updating category '{name}' (id: {id})" \
                      .format(name=category.name, id=category_id)
@@ -452,6 +506,8 @@ def updateCategory(category_id):
 
 @app.route("/categories/delete/<int:category_id>", methods=["POST", "GET"])
 def deleteCategory(category_id):
+    if requireLogin():
+        return redirect(url_for(LOGIN_VIEW))
     category = db_session.query(Category).filter_by(id=category_id).one()
     category_items = db_session.query(Item).filter_by(category_id=category_id).all()
     subheading = "Deleting category '{name}' (id: {id})" \
