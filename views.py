@@ -554,19 +554,167 @@ def badRequestError():
     response.status_code = 400
     return response
 
-#
-# @app.route("/api/items/json")
-# def getItemsJSON():
-#     return
 
 @app.route("/api/categories/json")
 def getCategoriesJSON():
-    if "category_id" in request.args:
-        category_id = request.args["category_id"]
-        items = db_session.query(Item).filter_by(category_id=category_id).all()
-        return jsonify(ResponseData=[item.serialize for item in items])
+    if "mode" in request.args:
+        if request.args["mode"] == "list":
+            # Return a list of categories
+            categories = db_session.query(Category).all()
+            response = jsonify(Categories=[category.serialize["name"] for category in categories])
+            response.status_code = 200
+            return response
+        elif request.args["mode"] == "search":
+            # Return a 422 if mode is 'search' but no query provided
+            if not "query" in request.args:
+                resp_data = makeRespObj(422, "Must supply a value for 'query' parameter if using 'mode=search'")
+                response = jsonify(resp_data)
+                response.status_code = 422
+                return response
+            # Attempt to return a list of categories corresponding with the search term
+            try:
+                categories = db_session.query(Category).filter(
+                                 Category.name.like("%{}%".format(request.args["query"]))
+                             )
+                response = jsonify(Categories=[category.serialize for category in categories])
+                response.status_code = 200
+                return response
+            except NoResultFound:
+                # Return a 404 if search query returned no categories
+                resp_data = makeRespObj(404, "No categories found under this search term.")
+                response = jsonify(resp_data)
+                response.status_code = 404
+                return response
+        else:
+            # Return a 422 if request did not provide acceptable option for the mode
+            resp_data = makeRespObj(422, "Incorrect option for 'mode' parameter.")
+            response = jsonify(resp_data)
+            response.status_code = 422
+            return response
+    elif "id" in request.args:
+        # Return a 422 if mutually exclusive parameters supplied
+        if "name" in request.args:
+            resp_data = makeRespObj(422, "Parameter 'name' cannot be used with 'id'.")
+            response = jsonify(resp_data)
+            response.status_code = 422
+            return response
+        # Attempt successful return of a category by ID
+        try:
+            category = db_session.query(Category).filter_by(id=request.args["id"]).one()
+            response = jsonify(Categories=[category.serialize])
+            response.status_code = 200
+            return response
+        except NoResultFound:
+            # Return a 404 if no category found under this ID
+            resp_data = makeRespObj(404, "No category corresponding to this ID.")
+            response = jsonify(resp_data)
+            response.status_code = 404
+            return response
+    elif "name" in request.args:
+        # Return a 422 if mutually exclusive parameters supplied
+        if "id" in request.args:
+            resp_data = makeRespObj(422, "Parameter 'name' cannot be used with 'id'.")
+            response = jsonify(resp_data)
+            response.status_code = 422
+            return response
+        # Attempt to return a category by supplied name
+        try:
+            category = db_session.query(Category).filter(name=request.args["category_name"]).one()
+            response = jsonify(Categories=[category.serialize for category in categories])
+            response.status_code = 200
+            return response
+        except NoResultFound:
+            # Return a 404 if no categories go by the provided name
+            resp_data = makeRespObj(404, "No category found under this name.")
+            response = jsonify(resp_data)
+            response.status_code = 404
+            return response
     else:
         return badRequestError()
+
+@app.route("/api/items/json")
+def getItemsJSON():
+    if "mode" in request.args:
+        if request.args["mode"] == "list":
+            # Return a list of item names
+            items = db_session.query(Item).all()
+            response = jsonify(Items=[item.serialize["name"] for item in items])
+            response.status_code = 200
+            return response
+        elif request.args["mode"] == "search":
+            # Return a 422 if mode is 'search' but no query provided
+            if not "query" in request.args:
+                resp_data = makeRespObj(422, "Must supply a value for 'query' parameter if using 'mode=search'")
+                response = jsonify(resp_data)
+                response.status_code = 422
+                return response
+            # Attempt to return a list of items corresponding with the search term
+            try:
+                items = db_session.query(Item).filter(
+                            Item.name.like("%{}%".format(request.args["query"])))
+                response = jsonify(Items=[item.serialize for item in items])
+                response.status_code = 200
+                return response
+            except NoResultFound:
+                # Return a 404 if search query returned no items
+                resp_data = makeRespObj(404, "No items found under this search term.")
+                response = jsonify(resp_data)
+                response.status_code = 404
+                return response
+        else:
+            # Return a 422 if request did not provide acceptable option for the mode
+            resp_data = makeRespObj(422, "Incorrect option for 'mode' parameter.")
+            response = jsonify(resp_data)
+            response.status_code = 422
+            return response
+    elif "category_id" in request.args:
+        # Attempt to return all items based on a category ID
+        items = db_session.query(Item).filter_by(category_id=request.args["category_id"]).all()
+        response = jsonify(Items=[item.serialize for item in items])
+        response.status_code = 200
+        return response
+    elif "id" in request.args:
+        # Return a 422 if mutually exclusive parameters supplied
+        if "name" in request.args:
+            resp_data = makeRespObj(422, "Parameter 'name' cannot be used with 'id'.")
+            response = jsonify(resp_data)
+            response.status_code = 422
+            return response
+        # Attempt to return item information based on ID
+        try:
+            item = db_session.query(Item).filter_by(name=request.args["id"]).one()
+            response = jsonify(Item=[item.serialze])
+            response.status_code = 200
+            return response
+        except NoResultFound:
+            # Return a 404 if no items correspond with the provided ID
+            resp_data = makeRespObj(404, "No item found under this ID.")
+            response = jsonify(resp_data)
+            response.status_code = 404
+            return response
+    elif "name" in request.args:
+        # Return a 422 if mutually exclusive parameters supplied
+        if "id" in request.args:
+            resp_data = makeRespObj(422, "Parameter 'id' cannot be used with 'name'.")
+            response = jsonify(resp_data)
+            response.status_code = 422
+            return response
+        # Attempt to return item information based on name
+        try:
+            item = db_session.query(Item).filter_by(name=request.args["name"]).one()
+            response = jsonify(Item=[item.serialze])
+            response.status_code = 200
+            return response
+        except NoResultFound:
+            # Return a 404 if no items go by the provided name
+            resp_data = makeRespObj(404, "No item found under this name.")
+            response = jsonify(resp_data)
+            response.status_code = 404
+            return response
+    else:
+        return badRequestError()
+
+################################################################################
 
 if __name__ == "__main__":
     app.secret_key = str(uuid.uuid4());
