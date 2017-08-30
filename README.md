@@ -1,5 +1,5 @@
 # ACME Trading Item Catalog
-A quirky Full-Stack CRUD application using both OAuth2 authentication via Google and server-side management of credentials. It uses Python 3 (Flask microframework), SQLAlchemy, D3.js and Bootstrap, also providing a RESTful API.
+A quirky Full-Stack CRUD application using both OAuth2 authentication (via Google) and server-side management of credentials. It uses Python 3 (Flask microframework), SQLAlchemy, D3.js and Bootstrap, also providing a RESTful API.
 
 # Running the app
 ## Requirements
