@@ -70,6 +70,16 @@ def makeRespObj(status_code, message):
     }
 
 
+def jsonRespObj(status_code, message):
+    resp_data = {
+        "status": status_code,
+        "message": message.strip("\n")
+    }
+    response = jsonify(resp_data)
+    response.status_code = status_code
+    return response
+
+
 def generateSessionToken():
     uuid_1 = str(uuid.uuid4())
     uuid_2 = str(uuid.uuid4())
@@ -89,6 +99,18 @@ def requireLogin():
         return True
     print("requireLogin will return: False")
     return False
+
+
+def requiresAuth():
+    """
+    Function that returns True if the user is not authenticated
+    to peform a request
+    """
+    try:
+        pass
+    except:
+        pass
+    return True
 
 
 ###############
@@ -579,29 +601,46 @@ def badRequestError():
     return response
 
 
+@app.errorhandler(401)
+def unauthenticatedError():
+    resp_data = {
+        "status": 401,
+        "message": "User unauthenticated to perform this request."
+    }
+    response = jsonify(resp_data)
+    response.status_code = 401
+    return response
+
+
+# AUTH ROUTES #
+
+@app.route("/api/oauth2/google/authenticate", methods=["POST"])
+def APIGoogleAuth():
+    pass
+
+
+# GET ROUTES #
+
 @app.route("/api/categories/json")
 def getCategoriesJSON():
     if "mode" in request.args:
         if request.args["mode"] == "list":
             # Return a list of categories
             categories = db_session.query(Category).all()
-            response = jsonify(Categories=[category.serialize["name"]
+            response = jsonify(Categories=[category.serialize
                                            for category in categories])
             response.status_code = 200
             return response
         elif request.args["mode"] == "search":
             # Return a 422 if mode is 'search' but no query provided
             if "query" not in request.args:
-                resp_data = makeRespObj(
-                                422,
-                                """
-                                Must supply a value for 'query' parameter
-                                if using 'mode=search'
-                                """
-                            )
-                response = jsonify(resp_data)
-                response.status_code = 422
-                return response
+                return jsonRespObj(
+                           422,
+                           """
+                           Must supply a value for 'query' parameter
+                           if using 'mode=search'
+                           """
+                       )
             # Attempt to return a list of categories corresponding with
             # the search term
             try:
@@ -617,36 +656,27 @@ def getCategoriesJSON():
                 return response
             except NoResultFound:
                 # Return a 404 if search query returned no categories
-                resp_data = makeRespObj(
-                                404,
-                                """
-                                No categories found under this
-                                search term.
-                                """
-                            )
-                response = jsonify(resp_data)
-                response.status_code = 404
-                return response
+                return jsonRespObj(
+                           404,
+                           """
+                           No categories found under this
+                           search term.
+                           """
+                       )
         else:
             # Return a 422 if request did not provide acceptable option
             # for the mode
-            resp_data = makeRespObj(
-                            422,
-                            "Incorrect option for 'mode' parameter."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 422
-            return response
+            return jsonRespObj(
+                       422,
+                       "Incorrect option for 'mode' parameter."
+                   )
     elif "id" in request.args:
         # Return a 422 if mutually exclusive parameters supplied
         if "name" in request.args:
-            resp_data = makeRespObj(
-                            422,
-                            "Parameter 'name' cannot be used with 'id'."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 422
-            return response
+            return jsonRespObj(
+                       422,
+                       "Parameter 'name' cannot be used with 'id'."
+                   )
         # Attempt successful return of a category by ID
         try:
             category = db_session.query(Category).filter_by(
@@ -657,23 +687,17 @@ def getCategoriesJSON():
             return response
         except NoResultFound:
             # Return a 404 if no category found under this ID
-            resp_data = makeRespObj(
-                            404,
-                            "No category corresponding to this ID."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 404
-            return response
+            return jsonRespObj(
+                       404,
+                       "No category corresponding to this ID."
+                   )
     elif "name" in request.args:
         # Return a 422 if mutually exclusive parameters supplied
         if "id" in request.args:
-            resp_data = makeRespObj(
-                            422,
-                            "Parameter 'name' cannot be used with 'id'."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 422
-            return response
+            return jsonRespObj(
+                       422,
+                       "Parameter 'name' cannot be used with 'id'."
+                   )
         # Attempt to return a category by supplied name
         try:
             category = db_session.query(Category).filter(
@@ -685,10 +709,7 @@ def getCategoriesJSON():
             return response
         except NoResultFound:
             # Return a 404 if no categories go by the provided name
-            resp_data = makeRespObj(404, "No category found under this name.")
-            response = jsonify(resp_data)
-            response.status_code = 404
-            return response
+            return jsonRespObj(404, "No category found under this name.")
     else:
         return badRequestError()
 
@@ -699,23 +720,22 @@ def getItemsJSON():
         if request.args["mode"] == "list":
             # Return a list of item names
             items = db_session.query(Item).all()
-            response = jsonify(Items=[item.serialize["name"]
-                                      for item in items])
+            response = jsonify(Items=[{
+                           "name": item.serialize["name"],
+                           "id": item.serialize["id"]
+                       } for item in items])
             response.status_code = 200
             return response
         elif request.args["mode"] == "search":
             # Return a 422 if mode is 'search' but no query provided
             if "query" not in request.args:
-                resp_data = makeRespObj(
-                                422,
-                                """
-                                Must supply a value for 'query' parameter
-                                if using 'mode=search'
-                                """
-                            )
-                response = jsonify(resp_data)
-                response.status_code = 422
-                return response
+                return jsonRespObj(
+                           422,
+                           """
+                           Must supply a value for 'query' parameter
+                           if using 'mode=search'.
+                           """
+                       )
             # Attempt to return a list of items corresponding with the
             # search term
             try:
@@ -730,23 +750,17 @@ def getItemsJSON():
                 return response
             except NoResultFound:
                 # Return a 404 if search query returned no items
-                resp_data = makeRespObj(
-                                404,
-                                "No items found under this search term."
-                            )
-                response = jsonify(resp_data)
-                response.status_code = 404
-                return response
+                return jsonRespObj(
+                           404,
+                           "No items found under this search term."
+                       )
         else:
             # Return a 422 if request did not provide acceptable option for
             # the mode
-            resp_data = makeRespObj(
-                            422,
-                            "Incorrect option for 'mode' parameter."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 422
-            return response
+            return jsonRespObj(
+                       422,
+                       "Incorrect option for 'mode' parameter."
+                   )
     elif "category_id" in request.args:
         # Attempt to return all items based on a category ID
         items = db_session.query(Item).filter_by(
@@ -758,13 +772,10 @@ def getItemsJSON():
     elif "id" in request.args:
         # Return a 422 if mutually exclusive parameters supplied
         if "name" in request.args:
-            resp_data = makeRespObj(
-                            422,
-                            "Parameter 'name' cannot be used with 'id'."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 422
-            return response
+            return jsonRespObj(
+                       422,
+                       "Parameter 'name' cannot be used with 'id'."
+                   )
         # Attempt to return item information based on ID
         try:
             item = db_session.query(Item).filter_by(
@@ -775,20 +786,14 @@ def getItemsJSON():
             return response
         except NoResultFound:
             # Return a 404 if no items correspond with the provided ID
-            resp_data = makeRespObj(404, "No item found under this ID.")
-            response = jsonify(resp_data)
-            response.status_code = 404
-            return response
+            return jsonRespObj(404, "No item found under this ID.")
     elif "name" in request.args:
         # Return a 422 if mutually exclusive parameters supplied
         if "id" in request.args:
-            resp_data = makeRespObj(
-                            422,
-                            "Parameter 'id' cannot be used with 'name'."
-                        )
-            response = jsonify(resp_data)
-            response.status_code = 422
-            return response
+            return jsonRespObj(
+                       422,
+                       "Parameter 'id' cannot be used with 'name'."
+                   )
         # Attempt to return item information based on name
         try:
             item = db_session.query(Item).filter_by(
@@ -799,12 +804,294 @@ def getItemsJSON():
             return response
         except NoResultFound:
             # Return a 404 if no items go by the provided name
-            resp_data = makeRespObj(404, "No item found under this name.")
-            response = jsonify(resp_data)
-            response.status_code = 404
-            return response
+            return jsonRespObj(404, "No item found under this name.")
     else:
         return badRequestError()
+
+
+# POST ROUTES #
+
+@app.route("/api/add/category", methods=["POST"])
+def APIAddCategory():
+    # if requiresAuth():
+    #     return unauthenticatedError()
+    # A name must be provided for the category
+    if "name" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Name must be provided for category to be added."
+               )
+    # Create a new category object and commit to DB
+    try:
+        new_category = Category(name=request.args["name"])
+        db_session.add(new_category)
+        db_session.commit()
+    except:
+        # If category could not be created, return a 500
+        return jsonRespObj(
+                   500,
+                   "Server-side error occurred during category creation."
+               )
+    # Return a 200 to user on successful creation of category
+    return jsonRespObj(
+               200,
+               "Successfully added category '{}' to database."
+               .format(request.args["name"])
+           )
+    response = jsonify(resp_data)
+    response.status_code = 200
+    return response
+
+
+@app.route("/api/add/item", methods=["POST"])
+def APIAddItem():
+    # if requiresAuth():
+    #     return unauthenticatedError()
+
+    # Item name, category ID, and price must be provided
+    # to add an item (stock will default to 0)
+    if "name" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Item name must be provided for item to be added."
+               )
+    elif "category_id" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Category ID must be provided for item to be added."
+               )
+    elif "price" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Price must be provided for item to be added."
+               )
+
+    # Create a new item object
+    new_item = Item()
+
+    # Default stock level to 0 parameter/value not provided
+    if "stock" not in request.args:
+        new_item.stock = 0
+    else:
+        new_item.stock = request.args["stock"]
+
+    if "description" in request.args:
+        new_item.description = request.args["description"]
+
+    # Attempt to add the new item to DB
+    try:
+        new_item.name = request.args["name"]
+        # Make sure that the price is registered in currency
+        if request.args["price"][0] != "$":
+            new_item.price = "$" + request.args["price"]
+        else:
+            new_item.price = request.args["price"]
+        new_item.category_id = request.args["category_id"]
+        db_session.add(new_item)
+        db_session.commit()
+    except:
+        # If item could not be created, return a 500
+        return jsonRespObj(
+                   500,
+                   "Server-side error occurred during item creation."
+               )
+    # Return a 200 to user on successful creation of item
+    return jsonRespObj(
+               200,
+               "Successfully added item '{}' to database."
+               .format(request.args["name"])
+            )
+
+
+# PUT ROUTES #
+
+@app.route("/api/update/category", methods=["PUT"])
+def APIUpdateCategory():
+    # if requiresAuth():
+    #     return unauthenticatedError()
+    # Reject request with a 422 if no category ID s provided
+    if "id" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Category ID must be provided to execute request."
+               )
+
+    # Load the category to update if ID is valid, otherwise return a 404
+    try:
+        category = db_session.query(Category).filter_by(
+                       id=request.args["id"]
+                   ).one()
+    except NoResultFound:
+        return jsonRespObj(
+                   404,
+                   "No category to update found under this ID."
+               )
+    if "name" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Nothing to update if a new name not provided."
+               )
+    # Attempt category update
+    try:
+        category.name = request.args["name"]
+        db_session.commit()
+    except:
+        # If category could not be updated, return a 500
+        return jsonRespObj(
+                   500,
+                   "Server-side error occurred during category update."
+               )
+    # Return a 200 to user for successful update of category
+    return jsonRespObj(
+               200,
+               "Successfully updated category '{}'".format(category.name)
+           )
+
+
+@app.route("/api/update/item", methods=["PUT"])
+def APIUpdateItem():
+    # if requiresAuth():
+    #     return unauthenticatedError()
+    if "id" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Item ID must be provided to execute request."
+               )
+
+    # Load the item to update if ID is valid, otherwise return a 404
+    try:
+        item = db_session.query(Item).filter_by(
+                       id=request.args["id"]
+                   ).one()
+    except NoResultFound:
+        return jsonRespObj(
+                   404,
+                   "No item to update found under this ID."
+               )
+    if ("name" or "price" or "stock" or "description") not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Nothing to update if no new data is provided."
+               )
+
+    old_name = item.name
+
+    if "name" in request.args:
+        item.name = request.args["name"]
+    if "price" in request.args:
+        if request.args["price"][0] != "$":
+            item.price = "$" + request.args["price"]
+        else:
+            item.price = request.args["price"]
+    if "stock" in request.args:
+        item.stock = request.args["stock"]
+    if "description" in request.args:
+        item.description = request.args["description"]
+
+    # Attempt item update
+    try:
+        db_session.commit()
+    except:
+        # If item could not be updated, return a 500
+        return jsonRespObj(
+                   500,
+                   "Server-side error occurred during item update."
+               )
+    # Return a 200 to user for successful update of item
+    return jsonRespObj(
+               200,
+               "Successfully updated item '{}'".format(old_name)
+           )
+
+
+# DELETE ROUTES #
+
+@app.route("/api/delete/category", methods=["DELETE"])
+def APIDeleteCategory():
+    # if requiresAuth():
+    #     return unauthenticatedError()
+    if "id" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Category ID must be provided to execute request."
+               )
+
+    # Load the category delete if ID is valid, otherwise return a 404
+    try:
+        category = db_session.query(Category).filter_by(
+                       id=request.args["id"]
+                   ).one()
+    except NoResultFound:
+        return jsonRespObj(
+                   404,
+                   "No category to delete found under this ID."
+               )
+
+    old_name = category.name
+
+    # Attempt to delete the category and all associated items
+    try:
+        items = db_session.query(Item).filter_by(
+                    category_id=request.args["id"]
+                )
+        for item in items:
+            db_session.delete(item)
+        db_session.delete(category)
+        db_session.commit()
+    except:
+        # Return a 500 if category could not be deleted
+        return jsonRespObj(
+                   500,
+                   "Server-side error occurred during category deletion."
+               )
+    # Return a 200 for successful deletion
+    return jsonRespObj(
+               200,
+               """
+               Successfully deleted category '{}' and all associated
+               items.
+               """.format(old_name)
+           )
+
+
+@app.route("/api/delete/item", methods=["DELETE"])
+def APIDeleteItem():
+    # if requiresAuth():
+    #     return unauthenticatedError()
+    if "id" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Item ID must be provided to execute request."
+               )
+
+    # Load the item to delete if ID is valid, otherwise return a 404
+    try:
+        item = db_session.query(Item).filter_by(
+                       id=request.args["id"]
+                   ).one()
+    except NoResultFound:
+        return jsonRespObj(
+                   404,
+                   "No item to delete found under this ID."
+               )
+
+    old_name = item.name
+
+    # Attempt to delete the item
+    try:
+        item.delete()
+        db_session.commit()
+    except:
+        # Return a 500 if item could not be deleted
+        return jsonRespObj(
+                   500,
+                   "Server-side error occurred during item deletion."
+               )
+    # Return a 200 for successful deletion
+    return jsonRespObj(
+               200,
+               "Successfully deleted item '{}'".format(old_name)
+           )
 
 ###############################################################################
 
