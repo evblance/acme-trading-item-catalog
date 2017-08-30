@@ -1,5 +1,5 @@
 # ACME Trading Item Catalog
-A quirky Full-Stack CRUD application leveraging OAuth2 authentication via Google in fulfillment of the Udacity FSND Item Catalog project. It uses Python 3 (Flask microframework), SQLAlchemy, D3.js and Bootstrap, also providing a RESTful API.
+A quirky Full-Stack CRUD application using both OAuth2 authentication via Google and server-side management of credentials. It uses Python 3 (Flask microframework), SQLAlchemy, D3.js and Bootstrap, also providing a RESTful API.
 
 # Running the app
 ## Requirements
@@ -89,3 +89,6 @@ Example Response 2:
     ]
 }
 ```
+
+### Note
+This project has been prepared in fulfillment of the Udacity FSND Item Catalog project requirements.
