@@ -23,6 +23,8 @@ from oauth2client.client import flow_from_clientsecrets, FlowExchangeError, \
                                 OAuth2Credentials
 from flask_httpauth import HTTPBasicAuth
 from flask_bcrypt import Bcrypt
+from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, \
+                         SignatureExpired
 
 
 ##################
@@ -32,6 +34,7 @@ from flask_bcrypt import Bcrypt
 # Init Flask app
 app = Flask(__name__)
 app.config["IMG_DIR"] = "static/images"
+app.config["SECRET_KEY"] = str(uuid.uuid4()).replace("-","")
 bcrypt = Bcrypt(app)
 
 # Init database and SQLAlchemy database session instance
@@ -46,14 +49,16 @@ db_session = DBSession()
 #############
 
 TITLE = "ACME Trading"
-TOKEN_CHK_BASE_URL = \
+G_TOKEN_CHK_BASE_URL = \
     "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
-TOKEN_REVOKE_BASE_URL = \
+G_TOKEN_REVOKE_BASE_URL = \
     "https://accounts.google.com/o/oauth2/revoke?token={}"
 USER_INFO_URL = \
     "https://www.googleapis.com/oauth2/v1/userinfo"
 
 LOGIN_VIEW = "login"
+
+TOKEN_TIMEOUT = 900
 
 with open("data/client_secret.json", "r") as gcs:
     G_CLIENT_SECRET = json.loads(gcs.read())["web"]["client_id"]
@@ -71,6 +76,7 @@ def makeRespObj(status_code, message):
 
 
 def jsonRespObj(status_code, message):
+    """ Returns a jsonified response object to be sent to the client """
     resp_data = {
         "status": status_code,
         "message": message.strip("\n")
@@ -81,9 +87,41 @@ def jsonRespObj(status_code, message):
 
 
 def generateSessionToken():
+    """ Returns a string representing a session token """
     uuid_1 = str(uuid.uuid4())
     uuid_2 = str(uuid.uuid4())
     return (uuid_1 + uuid_2).replace("-", "")
+
+
+def checkPassword(user, password):
+    """ Returns True if password is correct for the user """
+    return bcrypt.check_password_hash(user.password_hash, password)
+
+
+def generateTimedToken(seconds):
+    """ Returns a signed token to the user with specified TTL """
+    token_signer = TimedJSONWebSignatureSerializer(
+                       app.config["SECRET_KEY"],
+                       expires_in=seconds
+                   )
+    token = generateSessionToken()
+    return token_signer.dumps({ "token": token })
+
+
+def checkToken(token):
+    """ Returns True if provided token is current and valid """
+    token_signer = TimedJSONWebSignatureSerializer(
+                       app.config["SECRET_KEY"]
+                   )
+    try:
+        challenge = token_signer.loads(token.encode())
+    except SignatureExpired:
+        # Token is valid but has an expired signature
+        return False
+    except BadSignature:
+        # Token is invalid
+        return False
+    return True
 
 
 def requireLogin():
@@ -101,15 +139,21 @@ def requireLogin():
     return False
 
 
-def requiresAuth():
-    """
-    Function that returns True if the user is not authenticated
-    to peform a request
-    """
-    try:
-        pass
-    except:
-        pass
+def validEmailInput(email):
+    """ Function that performs (very) simple email validation """
+    if "@" and "." not in email:
+        return False
+    return True
+
+
+def validPasswordInput(password):
+    """ Function that performs password validation """
+    if len(password) < 8:
+        # Password need to be at least 8 charcters long
+        return False
+    elif " " in password:
+        # No spaces are allowed in password
+        return False
     return True
 
 
@@ -173,7 +217,7 @@ def googleLogin():
     # Check validity of access token
     access_token = credentials.access_token
     print("ACCESS TOKEN IS: {} \n".format(access_token))
-    chk_url = TOKEN_CHK_BASE_URL.format(access_token)
+    chk_url = G_TOKEN_CHK_BASE_URL.format(access_token)
     chk_result = json.loads(Http().request(chk_url, "GET")[1])
     print("CHECKING VALIDITY OF ACCESS TOKEN...\n")
     # Abort if access token not valid
@@ -201,8 +245,6 @@ def googleLogin():
         return response
     print("Passed\n")
     print("CHECKING THAT USER IS NOT ALREADY LOGGED IN...\n")
-    # TODO: Check access token is till valid in database by comparing hash
-    # of credentials.
     # Verify that the user is not already logged in so session variables do
     # not get unnecessarily reset
     saved_credentials = session.get("credentials")
@@ -228,29 +270,6 @@ def googleLogin():
     user_data = json.loads(response.text)
     print("USER DATA IS: {}".format(user_data))
     print("STORING USER DATA IN SESSION...\n")
-
-    # # Update user access_token if user exists in DB
-    # try:
-    #     print("RENEWING USER ACCESS TOKEN IN DB...\n")
-    #     user = db_session.query(User).filter_by(
-    #                username=user_data["email"]
-    #            ).one()
-    #     user.g_access_token_hash = bcrypt.generate_password_hash(
-    #                                    session["credentials"]
-    #                                )
-    #     db_session.commit()
-    # except NoResultFound:
-    #     # New user, so store under unique username (email) in database
-    #     print("CREATING NEW USER IN DB...\n")
-    #     user = User(
-    #         username=user_data["email"],
-    #         g_access_token_hash=bcrypt.generate_password_hash(
-    #                                 session["credentials"]
-    #                             ),
-    #         authenticated=1)
-    #     db_session.add(user)
-    #     db_session.commit()
-
     # Store user information in session
     session["email"] = user_data["email"]
     print("User email is: {}\n".format(session["email"]))
@@ -270,7 +289,7 @@ def googleLogout():
         response.status_code = 401
         return response
 
-    revoke_url = TOKEN_REVOKE_BASE_URL.format(access_token)
+    revoke_url = G_TOKEN_REVOKE_BASE_URL.format(access_token)
     revoke_result = Http().request(revoke_url, "GET")[0]
     # Revoke access token
     if revoke_result["status"] == "200":
@@ -589,6 +608,8 @@ def deleteCategory(category_id):
 # API ROUTES #
 ##############
 
+# ERROR HANDLERS #
+
 @app.errorhandler(400)
 def badRequestError():
     resp_data = {
@@ -605,7 +626,7 @@ def badRequestError():
 def unauthenticatedError():
     resp_data = {
         "status": 401,
-        "message": "User unauthenticated to perform this request."
+        "message": "Invalid or expired access token."
     }
     response = jsonify(resp_data)
     response.status_code = 401
@@ -614,9 +635,86 @@ def unauthenticatedError():
 
 # AUTH ROUTES #
 
-@app.route("/api/oauth2/google/authenticate", methods=["POST"])
-def APIGoogleAuth():
-    pass
+@app.route("/api/registration", methods=["POST"])
+def APIRegisterUser():
+    # Reject registration attempt if user and password are missing
+    if "username" and "password" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Registrant must provide both an email and password."
+               )
+    # Validate email input
+    if not validEmailInput(request.args["username"]):
+        return jsonRespObj(
+                   400,
+                   "Registration requires a valid email address."
+               )
+    # Validate password input
+    if not validPasswordInput(request.args["password"]):
+        return jsonRespObj(
+                   400,
+                   "Registrant's password may not contain any spaces."
+               )
+    # Only register a new user if the email address (username) does
+    # not exist already in DB
+    try:
+        pw_hash = bcrypt.generate_password_hash(request.args["password"])
+        new_user = User(
+                       username=request.args["username"],
+                       password_hash=pw_hash
+                   )
+        db_session.add(new_user)
+        db_session.commit()
+    except:
+        db_session.rollback()
+        return jsonRespObj(
+            500,
+            "Email address already exists in DB."
+        )
+    # Return a 200 for successful registration of a new user
+    return jsonRespObj(
+               200,
+               "Successfully registered new user '{}'"
+               .format(request.args["username"])
+           )
+
+
+@app.route("/api/tokens", methods=["POST"])
+def APIRegisterToken():
+    # Reject token request if user and password are missing
+    if "username" and "password" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "Credentials must be provided to obtain an access token."
+               )
+    try:
+        user =  db_session.query(User).filter_by(
+                    username=request.args["username"]
+                ).one()
+    except NoResultFound:
+        # If no DB record for this user, return an error
+        return jsonRespObj(
+               400,
+               "Incorrect username or password."
+           )
+    # If password is correct, generate a timed token for the user
+    # and send back with a 200
+    if checkPassword(user, request.args["password"]):
+        token = generateTimedToken(TOKEN_TIMEOUT)
+        resp_data = {
+            "status": 200,
+            "token": token.decode(),
+            "TTL": TOKEN_TIMEOUT
+        }
+        response = jsonify(resp_data)
+        response.status_code = 200
+        return response
+    else:
+        # Return 400 for bad username or password
+        return jsonRespObj(
+                   400,
+                   "Incorrect username or password."
+               )
 
 
 # GET ROUTES #
@@ -636,10 +734,8 @@ def getCategoriesJSON():
             if "query" not in request.args:
                 return jsonRespObj(
                            422,
-                           """
-                           Must supply a value for 'query' parameter
-                           if using 'mode=search'
-                           """
+                           "Must supply a value for 'query' parameter" + \
+                           " if using 'mode=search'"
                        )
             # Attempt to return a list of categories corresponding with
             # the search term
@@ -658,10 +754,7 @@ def getCategoriesJSON():
                 # Return a 404 if search query returned no categories
                 return jsonRespObj(
                            404,
-                           """
-                           No categories found under this
-                           search term.
-                           """
+                           "No categories found under this search term."
                        )
         else:
             # Return a 422 if request did not provide acceptable option
@@ -731,10 +824,8 @@ def getItemsJSON():
             if "query" not in request.args:
                 return jsonRespObj(
                            422,
-                           """
-                           Must supply a value for 'query' parameter
-                           if using 'mode=search'.
-                           """
+                           "Must supply a value for 'query' parameter" + \
+                           " if using 'mode=search'."
                        )
             # Attempt to return a list of items corresponding with the
             # search term
@@ -813,8 +904,15 @@ def getItemsJSON():
 
 @app.route("/api/add/category", methods=["POST"])
 def APIAddCategory():
-    # if requiresAuth():
-    #     return unauthenticatedError()
+    # Reject with a 422 if token parameter not provided
+    if "token" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "An access token is required to perform this request."
+               )
+    # Check whether API user has supplied a valid access token
+    if not checkToken(request.args["token"]):
+        return unauthenticatedError()
     # A name must be provided for the category
     if "name" not in request.args:
         return jsonRespObj(
@@ -845,9 +943,15 @@ def APIAddCategory():
 
 @app.route("/api/add/item", methods=["POST"])
 def APIAddItem():
-    # if requiresAuth():
-    #     return unauthenticatedError()
-
+    # Reject with a 422 if token parameter not provided
+    if "token" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "An access token is required to perform this request."
+               )
+    # Check whether API user has supplied a valid access token
+    if not checkToken(request.args["token"]):
+        return unauthenticatedError()
     # Item name, category ID, and price must be provided
     # to add an item (stock will default to 0)
     if "name" not in request.args:
@@ -907,8 +1011,15 @@ def APIAddItem():
 
 @app.route("/api/update/category", methods=["PUT"])
 def APIUpdateCategory():
-    # if requiresAuth():
-    #     return unauthenticatedError()
+    # Reject with a 422 if token parameter not provided
+    if "token" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "An access token is required to perform this request."
+               )
+    # Check whether API user has supplied a valid access token
+    if not checkToken(request.args["token"]):
+        return unauthenticatedError()
     # Reject request with a 422 if no category ID s provided
     if "id" not in request.args:
         return jsonRespObj(
@@ -950,8 +1061,15 @@ def APIUpdateCategory():
 
 @app.route("/api/update/item", methods=["PUT"])
 def APIUpdateItem():
-    # if requiresAuth():
-    #     return unauthenticatedError()
+    # Reject with a 422 if token parameter not provided
+    if "token" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "An access token is required to perform this request."
+               )
+    # Check whether API user has supplied a valid access token
+    if not checkToken(request.args["token"]):
+        return unauthenticatedError()
     if "id" not in request.args:
         return jsonRespObj(
                    422,
@@ -1008,8 +1126,16 @@ def APIUpdateItem():
 
 @app.route("/api/delete/category", methods=["DELETE"])
 def APIDeleteCategory():
-    # if requiresAuth():
-    #     return unauthenticatedError()
+    # Reject with a 422 if token parameter not provided
+    if "token" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "An access token is required to perform this request."
+               )
+    # Check whether API user has supplied a valid access token
+    if not checkToken(request.args["token"]):
+        return unauthenticatedError()
+    # Reject with a 422 if ID parameter/value not present
     if "id" not in request.args:
         return jsonRespObj(
                    422,
@@ -1047,23 +1173,28 @@ def APIDeleteCategory():
     # Return a 200 for successful deletion
     return jsonRespObj(
                200,
-               """
-               Successfully deleted category '{}' and all associated
-               items.
-               """.format(old_name)
+               "Successfully deleted category '{}' and all associated items"
+               .format(old_name)
            )
 
 
 @app.route("/api/delete/item", methods=["DELETE"])
 def APIDeleteItem():
-    # if requiresAuth():
-    #     return unauthenticatedError()
+    # Reject with a 422 if token parameter not provided
+    if "token" not in request.args:
+        return jsonRespObj(
+                   422,
+                   "An access token is required to perform this request."
+               )
+    # Check whether API user has supplied a valid access token
+    if not checkToken(request.args["token"]):
+        return unauthenticatedError()
+    # Reject with a 422 if ID parameter/value not present
     if "id" not in request.args:
         return jsonRespObj(
                    422,
                    "Item ID must be provided to execute request."
                )
-
     # Load the item to delete if ID is valid, otherwise return a 404
     try:
         item = db_session.query(Item).filter_by(
@@ -1076,7 +1207,6 @@ def APIDeleteItem():
                )
 
     old_name = item.name
-
     # Attempt to delete the item
     try:
         item.delete()
@@ -1096,6 +1226,5 @@ def APIDeleteItem():
 ###############################################################################
 
 if __name__ == "__main__":
-    app.secret_key = str(uuid.uuid4())
     app.debug = True
     app.run("127.0.0.1", port=5050)
