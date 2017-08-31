@@ -49,10 +49,13 @@ db_session = DBSession()
 #############
 
 TITLE = "ACME Trading"
+
 G_TOKEN_CHK_BASE_URL = \
+
     "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
 G_TOKEN_REVOKE_BASE_URL = \
     "https://accounts.google.com/o/oauth2/revoke?token={}"
+
 USER_INFO_URL = \
     "https://www.googleapis.com/oauth2/v1/userinfo"
 
@@ -206,7 +209,6 @@ def googleLogin():
         oauth_flow = flow_from_clientsecrets("data/client_secret.json",
                                              scope="",
                                              redirect_uri="postmessage")
-
         credentials = oauth_flow.step2_exchange(auth_code)
     except FlowExchangeError:
         resp_data = makeRespObj(401, "Failed to upgrade auth code.")
