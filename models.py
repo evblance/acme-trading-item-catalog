@@ -56,13 +56,6 @@ class User(Base):
     username = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
 
-    @property
-    def serialize(self):
-        return {
-            "id": self.id,
-            "username": self.username
-        }
-
 
 ###################################################
 
