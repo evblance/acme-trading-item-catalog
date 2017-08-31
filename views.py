@@ -51,8 +51,8 @@ db_session = DBSession()
 TITLE = "ACME Trading"
 
 G_TOKEN_CHK_BASE_URL = \
-
     "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
+    
 G_TOKEN_REVOKE_BASE_URL = \
     "https://accounts.google.com/o/oauth2/revoke?token={}"
 
