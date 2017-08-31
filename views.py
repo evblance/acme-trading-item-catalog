@@ -34,7 +34,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, \
 # Init Flask app
 app = Flask(__name__)
 app.config["IMG_DIR"] = "static/images"
-app.config["SECRET_KEY"] = str(uuid.uuid4()).replace("-","")
+app.config["SECRET_KEY"] = str(uuid.uuid4()).replace("-", "")
 bcrypt = Bcrypt(app)
 
 # Init database and SQLAlchemy database session instance
@@ -105,7 +105,7 @@ def generateTimedToken(seconds):
                        expires_in=seconds
                    )
     token = generateSessionToken()
-    return token_signer.dumps({ "token": token })
+    return token_signer.dumps({"token": token})
 
 
 def checkToken(token):
@@ -688,9 +688,9 @@ def APIRegisterToken():
                    "Credentials must be provided to obtain an access token."
                )
     try:
-        user =  db_session.query(User).filter_by(
-                    username=request.args["username"]
-                ).one()
+        user = db_session.query(User).filter_by(
+                   username=request.args["username"]
+               ).one()
     except NoResultFound:
         # If no DB record for this user, return an error
         return jsonRespObj(
@@ -734,7 +734,7 @@ def getCategoriesJSON():
             if "query" not in request.args:
                 return jsonRespObj(
                            422,
-                           "Must supply a value for 'query' parameter" + \
+                           "Must supply a value for 'query' parameter" +
                            " if using 'mode=search'"
                        )
             # Attempt to return a list of categories corresponding with
@@ -824,7 +824,7 @@ def getItemsJSON():
             if "query" not in request.args:
                 return jsonRespObj(
                            422,
-                           "Must supply a value for 'query' parameter" + \
+                           "Must supply a value for 'query' parameter" +
                            " if using 'mode=search'."
                        )
             # Attempt to return a list of items corresponding with the

@@ -8,7 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-
 class Category(Base):
     """ Table storing item category information """
     __tablename__ = "category"
@@ -37,7 +36,6 @@ class Item(Base):
     category = relationship(Category)
     category_id = Column(ForeignKey("category.id"))
 
-
     @property
     def serialize(self):
         """ Returns a dict of object data easily convertible to JSON  """
@@ -57,7 +55,6 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
-
 
     @property
     def serialize(self):
