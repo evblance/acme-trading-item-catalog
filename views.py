@@ -126,6 +126,7 @@ def checkToken(token):
         return False
     return True
 
+
 def refreshSessionAccessToken(seconds):
     """
     Refreshes a server-side authenticated user's login session
@@ -156,11 +157,11 @@ def requireLogin():
         return False
     # Login session cannot be stale
     if (session.get("access_token") is None) or \
-       (not checkToken(session["access_token"])):
-       if session.get("email") is not None:
-           del session["email"]
-       flash("Session expired.")
-       return True
+            (not checkToken(session["access_token"])):
+        if session.get("email") is not None:
+            del session["email"]
+        flash("Session expired.")
+        return True
     # Login session must be able to refresh correctly
     if not refreshSessionAccessToken(TOKEN_TIMEOUT):
         if session.get("email") is not None:
@@ -699,8 +700,8 @@ def APIRegisterUser():
     if not validPasswordInput(request.args["password"]):
         return jsonRespObj(
                    400,
-                   "Registrant's password must contain at least 8 " \
-                   + "symbols but no spaces."
+                   "Registrant's password must contain at least 8 " +
+                   "symbols but no spaces."
                )
     # Only register a new user if the email address (username) does
     # not exist already in DB
