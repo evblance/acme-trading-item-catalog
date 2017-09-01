@@ -21,7 +21,6 @@ import requests
 
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError, \
                                 OAuth2Credentials
-from flask_httpauth import HTTPBasicAuth
 from flask_bcrypt import Bcrypt
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, \
                          SignatureExpired
