@@ -62,7 +62,7 @@ G_USER_INFO_URL = \
 
 LOGIN_VIEW = "login"
 
-TOKEN_TIMEOUT = 30
+TOKEN_TIMEOUT = 900
 
 with open("data/client_secret.json", "r") as gcs:
     G_CLIENT_SECRET = json.loads(gcs.read())["web"]["client_id"]
