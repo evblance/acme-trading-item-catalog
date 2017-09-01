@@ -691,10 +691,7 @@ def APIRegisterUser():
         db_session.commit()
     except:
         db_session.rollback()
-        return jsonRespObj(
-            500,
-            "Email address already exists in DB."
-        )
+        return jsonRespObj(500, "Email address already exists in DB.")
     # Return a 200 for successful registration of a new user
     return jsonRespObj(
                200,
@@ -717,10 +714,7 @@ def APIRegisterToken():
                ).one()
     except NoResultFound:
         # If no DB record for this user, return an error
-        return jsonRespObj(
-               400,
-               "Incorrect username or password."
-           )
+        return jsonRespObj(400, "Incorrect username or password.")
     # If password is correct, generate a timed token for the user
     # and send back with a 200
     if checkPassword(user, request.args["password"]):
@@ -735,10 +729,7 @@ def APIRegisterToken():
         return response
     else:
         # Return 400 for bad username or password
-        return jsonRespObj(
-                   400,
-                   "Incorrect username or password."
-               )
+        return jsonRespObj(400, "Incorrect username or password.")
 
 
 # GET ROUTES #
@@ -804,10 +795,7 @@ def getCategoriesJSON():
             return response
         except NoResultFound:
             # Return a 404 if no category found under this ID
-            return jsonRespObj(
-                       404,
-                       "No category corresponding to this ID."
-                   )
+            return jsonRespObj(404, "No category corresponding to this ID.")
     elif "name" in request.args:
         # Return a 422 if mutually exclusive parameters supplied
         if "id" in request.args:
@@ -1057,10 +1045,7 @@ def APIUpdateCategory():
                        id=request.args["id"]
                    ).one()
     except NoResultFound:
-        return jsonRespObj(
-                   404,
-                   "No category to update found under this ID."
-               )
+        return jsonRespObj(404, "No category to update found under this ID.")
     if "name" not in request.args:
         return jsonRespObj(
                    422,
@@ -1106,10 +1091,7 @@ def APIUpdateItem():
                        id=request.args["id"]
                    ).one()
     except NoResultFound:
-        return jsonRespObj(
-                   404,
-                   "No item to update found under this ID."
-               )
+        return jsonRespObj(404, "No item to update found under this ID.")
     if ("name" or "price" or "stock" or "description") not in request.args:
         return jsonRespObj(
                    422,
@@ -1172,10 +1154,7 @@ def APIDeleteCategory():
                        id=request.args["id"]
                    ).one()
     except NoResultFound:
-        return jsonRespObj(
-                   404,
-                   "No category to delete found under this ID."
-               )
+        return jsonRespObj(404, "No category to delete found under this ID.")
 
     old_name = category.name
 
@@ -1225,10 +1204,7 @@ def APIDeleteItem():
                        id=request.args["id"]
                    ).one()
     except NoResultFound:
-        return jsonRespObj(
-                   404,
-                   "No item to delete found under this ID."
-               )
+        return jsonRespObj(404, "No item to delete found under this ID.")
 
     old_name = item.name
     # Attempt to delete the item
