@@ -82,7 +82,7 @@ def jsonRespObj(status_code, message):
     """ Returns a jsonified response object to be sent to the client """
     resp_data = {
         "status": status_code,
-        "message": message.strip("\n")
+        "message": message
     }
     response = jsonify(resp_data)
     response.status_code = status_code
@@ -254,10 +254,7 @@ def logout():
 def googleLogin():
     # Validate state token
     if session.get("state") != request.args.get("state"):
-        resp_data = makeRespObj(401, "Invalid state parameter.")
-        response = jsonify(resp_data)
-        response.status_code = 401
-        return response
+        return jsonRespObj(401, "Invalid state parameter.")
 
     # Attempt upgrade of auth code into a credentials object
     auth_code = request.data
@@ -267,10 +264,7 @@ def googleLogin():
                                              redirect_uri="postmessage")
         credentials = oauth_flow.step2_exchange(auth_code)
     except FlowExchangeError:
-        resp_data = makeRespObj(401, "Failed to upgrade auth code.")
-        response = jsonify(resp_data)
-        response.status_code = 401
-        return response
+        return jsonRespObj(401, "Failed to upgrade auth code.")
 
     # Check validity of access token
     access_token = credentials.access_token
@@ -278,35 +272,23 @@ def googleLogin():
     chk_result = json.loads(Http().request(chk_url, "GET")[1])
     # Abort if access token not valid
     if chk_result.get("error") is not None:
-        resp_data = makeRespObj(500, chk_result.get("error"))
-        response = jsonify(resp_data)
-        response.status_code = 500
-        return response
+        return jsonRespObj(500, chk_result.get("error"))
 
     # Verify that the access token is being used by the intended user
     google_id = credentials.id_token["sub"]
     if chk_result["user_id"] != google_id:
-        resp_data = makeRespObj(401, "Mismatched token and user IDs.")
-        response = jsonify(resp_data)
-        response.status_code = 401
-        return response
+        return jsonRespObj(401, "Mismatched token and user IDs.")
 
     # Verify that access token is valid for this application
     if chk_result["issued_to"] != G_CLIENT_SECRET:
-        resp_data = makeRespObj(401, "Mismatched token and application IDs.")
-        response = jsonify(resp_data)
-        response.status_code = 401
-        return response
+        return jsonRespObj(401, "Mismatched token and application IDs.")
 
     # Verify that the user is not already logged in so session variables do
     # not get unnecessarily reset
     saved_credentials = session.get("credentials")
     saved_google_id = session.get("google_id")
     if (saved_credentials is not None) and (google_id == saved_google_id):
-        resp_data = makeRespObj(200, "Current user is already logged in.")
-        response = jsonify(resp_data)
-        response.status_code = 200
-        return response
+        return jsonRespObj(200, "Current user is already logged in.")
 
     # Store access token in session object
     session["credentials"] = credentials.access_token
@@ -331,10 +313,7 @@ def googleLogout():
     # Only attempt logout if a user is connected
     access_token = session.get("credentials")
     if access_token is None:
-        resp_data = makeRespObj(401, "Current user is not logged in.")
-        response = jsonify(resp_data)
-        response.status_code = 401
-        return response
+        return jsonRespObj(401, "Current user is not logged in.")
 
     revoke_url = G_TOKEN_REVOKE_BASE_URL.format(access_token)
     revoke_result = Http().request(revoke_url, "GET")[0]
@@ -349,10 +328,7 @@ def googleLogout():
         return redirect(url_for("home"))
     else:
         # Respond that the token was invalid
-        resp_data = makeRespObj("Failed to revoke token for given user.", 400)
-        response = jsonify(resp_data)
-        response.status_code = 400
-        return response
+        return jsonRespObj("Failed to revoke token for given user.", 400)
 
 
 ###############
