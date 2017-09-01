@@ -129,9 +129,9 @@ def checkToken(token):
 
 def refreshSessionAccessToken(seconds):
     """
-    Refreshes an authenticated user's login session
+    Refreshes a server-side authenticated user's login session
 
-    Refreshes an authenticated user's login session token and
+    Refreshes a server-side authenticated user's login session token and
     returns True if successful
     """
     # Only refresh access token if a valid one already exists
@@ -142,7 +142,7 @@ def refreshSessionAccessToken(seconds):
 
 
 def setSessionAccessToken(seconds):
-    """ Sets an authenticated user's login session access token """
+    """ Sets a server-side authenticated user's login session access token """
     session["access_token"] = generateTimedAccessToken(seconds).decode()
 
 
@@ -152,15 +152,20 @@ def requireLogin():
     if session.get("email") is None:
         flash("You must log in to continue.")
         return True
-    # Session cannot be stale
+    # Google OAuth2 sessions are exempt from server-side expiry
+    if session.get("google_id") is not None:
+        return False
+    # Login session cannot be stale
     if (session.get("access_token") is None) or \
        (not checkToken(session["access_token"])):
-       del session["email"]
+       if session.get("email") is not None:
+           del session["email"]
        flash("Session expired.")
        return True
-    # Session must be able to refresh
+    # Login session must be able to refresh correctly
     if not refreshSessionAccessToken(TOKEN_TIMEOUT):
-        del session["email"]
+        if session.get("email") is not None:
+            del session["email"]
         flash("Could not confirm valid user access.")
         return True
     return False
@@ -232,12 +237,13 @@ def login():
 
 @app.route("/logout", methods=["POST", "GET"])
 def logout():
-    # Redirect to appropriate URL if login is via Google OAuth2
+    # Redirect to appropriate URL if login is via  OAuth2
     if session.get("google_id"):
         return redirect(url_for("googleLogout"))
     else:
         # Reset session
-        del session["email"]
+        if session.get("email") is not None:
+            del session["email"]
         # Let the user know they logged in successfully upon redirect
         flash("Logged out successfully.")
         return redirect(url_for("home"))
@@ -247,7 +253,7 @@ def logout():
 @app.route("/oauth2/google/signin", methods=["POST"])
 def googleLogin():
     # Validate state token
-    if request.args.get("state") != session["state"]:
+    if session.get("state") != request.args.get("state"):
         resp_data = makeRespObj(401, "Invalid state parameter.")
         response = jsonify(resp_data)
         response.status_code = 401
