@@ -207,10 +207,6 @@ body {
 .form--login__submit {
   cursor: pointer;
   width: 100%;
-
-  &:hover {
-    background: $menuHoverColor;
-  }
 }
 
 .form--delete {

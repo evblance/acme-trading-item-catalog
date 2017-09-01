@@ -12,17 +12,17 @@
 {% endif %}
 {% endwith %}
 
-<!-- TODO: Server-side authentication  -->
-<!-- <form class="form--login" action="/login" method="post">
+<form class="form--login" action="/login" method="post">
   <h3 class="form--login__heading">ACME Admin</h3>
   <fieldset class="form-group">
     <label class="form--login__label" for="username">Username</label>
     <input class="form-control" name="username" type="text">
     <label class="form--login__label" for="password">Password</label>
     <input class="form-control" name="password" type="password">
+    <input hidden name="state" value="{{ STATE }}">
   </fieldset>
-  <button class="btn form--login__submit" type="submit">Login</button>
-</form> -->
+  <button class="btn btn-info form--login__submit" type="submit">Login</button>
+</form>
 <div class="g-login">
   <h4 class="g-login__heading">Log in with Google</h4>
   <a class="g-login__link" href="{{ url_for('googleLogin') }}">

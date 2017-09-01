@@ -25,6 +25,7 @@ from flask_httpauth import HTTPBasicAuth
 from flask_bcrypt import Bcrypt
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, \
                          SignatureExpired
+import bleach
 
 
 ##################
@@ -52,7 +53,7 @@ TITLE = "ACME Trading"
 
 G_TOKEN_CHK_BASE_URL = \
     "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
-    
+
 G_TOKEN_REVOKE_BASE_URL = \
     "https://accounts.google.com/o/oauth2/revoke?token={}"
 
@@ -166,19 +167,38 @@ def validPasswordInput(password):
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
-    # Set a new state for the login session
-    session["state"] = generateSessionToken()
 
-    # TODO: Server-side authentication
-    # if request.method == "POST":
-    #     username = request.form["username"]
-    #     password = request.form["password"]
-    #     if username == USER["username"] and password == USER["password"]:
-    #         return redirect(url_for("home"))
-    #     flash("Incorrect username or password.")
-    #     return render_template("login.html", title=TITLE)
+    if request.method == "POST":
+        # Attempt to validate state token
+        if session.get("state") != request.form.get("state"):
+            flash("Invalid login session.")
+            return redirect(url_for("login"))
+        # Do some basic input sanitization and validation
+        username = bleach.clean(request.form["username"])
+        username = username.lower()
+        if not validEmailInput(username):
+            flash("Incorrect username or password.")
+            return redirect(url_for("login"))
+        password = bleach.clean(request.form["password"])
+        # Attempt to load user
+        try:
+            user = db_session.query(User).filter_by(username=username).one()
+        except NoResultFound:
+            flash("Incorrect username or password.")
+            return redirect(url_for("login"))
+        # Log user in if supplied password is correct
+        if checkPassword(user, password):
+            session["email"] = username
+            flash("You are now logged in as '{}'."
+                  .format(session["email"]))
+            return redirect(url_for("home"))
+        else:
+            flash("Incorrect username or password.")
+            return redirect(url_for("login"))
 
     if request.method == "GET":
+        # Set a new state for the login session
+        session["state"] = generateSessionToken()
         return render_template("login.html",
                                title=TITLE,
                                STATE=session["state"])
@@ -186,16 +206,21 @@ def login():
 
 @app.route("/logout", methods=["POST", "GET"])
 def logout():
-    # TODO: Add code to handle possibility of server-side authentication
-    # NOTE: Needs to redirect to Google signout route if the user is logged
-    #       in via OAuth2 through this provider.
-    return redirect(url_for("googleLogout"))
+    # Redirect to appropriate URL if login is via Google OAuth2
+    if session.get("google_id"):
+        return redirect(url_for("googleLogout"))
+    else:
+        # Reset session
+        del session["email"]
+        # Let the user know they logged in successfully upon redirect
+        flash("Logged out successfully.")
+        return redirect(url_for("home"))
 
 
 # Route for handling Google OAuth2 signin
 @app.route("/oauth2/google/signin", methods=["POST"])
 def googleLogin():
-    print("CHECKING STATE TOKEN \n")
+    # Validate state token
     if request.args.get("state") != session["state"]:
         resp_data = makeRespObj(401, "Invalid state parameter.")
         response = jsonify(resp_data)
@@ -276,7 +301,6 @@ def googleLogin():
     session["email"] = user_data["email"]
     print("User email is: {}\n".format(session["email"]))
     print("Redirecting\n")
-    # flash("You are logged in via OAuth2 as: {}".format(session["email"]))
     return redirect(url_for("home"))
 
 
@@ -299,7 +323,7 @@ def googleLogout():
         del session["credentials"]
         del session["google_id"]
         del session["email"]
-        flash("Logged out was successfully.")
+        flash("Logged out successfully.")
         # Let the user know that their logout was successful on redirect
         return redirect(url_for("home"))
     else:
@@ -662,7 +686,7 @@ def APIRegisterUser():
     try:
         pw_hash = bcrypt.generate_password_hash(request.args["password"])
         new_user = User(
-                       username=request.args["username"],
+                       username=request.args["username"].lower(),
                        password_hash=pw_hash
                    )
         db_session.add(new_user)
