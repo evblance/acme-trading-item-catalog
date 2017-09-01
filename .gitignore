@@ -12,3 +12,6 @@ static/sass/.sass-cache/
 
 # Source files
 /src
+
+# Client secrets
+/data
