@@ -132,14 +132,10 @@ def requireLogin():
     """ Function that returns True if user is not logged in """
     try:
         username = session["email"]
-        print("requireLogin got username: {}".format(username))
         # must also check credentials here to see if token is still valid
     except KeyError:
-        print("requireLogin could not find a username.")
-        print("requireLogin will return: True")
         flash("You must log in to continue.")
         return True
-    print("requireLogin will return: False")
     return False
 
 
@@ -226,11 +222,10 @@ def googleLogin():
         response = jsonify(resp_data)
         response.status_code = 401
         return response
-    print("Success\n")
-    print("ATTEMPTING AUTH CODE UPGRADE TO CREDENTIALS...\n")
+
+    # Attempt upgrade of auth code into a credentials object
     auth_code = request.data
     try:
-        # Upgrade the auth code into a credentials object
         oauth_flow = flow_from_clientsecrets("data/client_secret.json",
                                              scope="",
                                              redirect_uri="postmessage")
@@ -240,21 +235,18 @@ def googleLogin():
         response = jsonify(resp_data)
         response.status_code = 401
         return response
-    print("Success\n")
+
     # Check validity of access token
     access_token = credentials.access_token
-    print("ACCESS TOKEN IS: {} \n".format(access_token))
     chk_url = G_TOKEN_CHK_BASE_URL.format(access_token)
     chk_result = json.loads(Http().request(chk_url, "GET")[1])
-    print("CHECKING VALIDITY OF ACCESS TOKEN...\n")
     # Abort if access token not valid
     if chk_result.get("error") is not None:
         resp_data = makeRespObj(500, chk_result.get("error"))
         response = jsonify(resp_data)
         response.status_code = 500
         return response
-    print("Passed\n")
-    print("CHECKING TOKEN IS BEING USED BY INTENDED USER...\n")
+
     # Verify that the access token is being used by the intended user
     google_id = credentials.id_token["sub"]
     if chk_result["user_id"] != google_id:
@@ -262,16 +254,14 @@ def googleLogin():
         response = jsonify(resp_data)
         response.status_code = 401
         return response
-    print("Passed\n")
-    print("CHECKING THAT ACCESS TOKEN IS VALID FOR THIS APPLICATION...\n")
+
     # Verify that access token is valid for this application
     if chk_result["issued_to"] != G_CLIENT_SECRET:
         resp_data = makeRespObj(401, "Mismatched token and application IDs.")
         response = jsonify(resp_data)
         response.status_code = 401
         return response
-    print("Passed\n")
-    print("CHECKING THAT USER IS NOT ALREADY LOGGED IN...\n")
+
     # Verify that the user is not already logged in so session variables do
     # not get unnecessarily reset
     saved_credentials = session.get("credentials")
@@ -281,13 +271,11 @@ def googleLogin():
         response = jsonify(resp_data)
         response.status_code = 200
         return response
-    print("Passed\n")
-    print("STORING ACCESS TOKEN IN SESSION OBJECT...\n")
+
     # Store access token in session object
     session["credentials"] = credentials.access_token
     session["google_id"] = google_id
-    print("Done\n")
-    print("OBTAINING USER INFORMATION...\n")
+
     # Obtain user information
     params = {
         "access_token": session["credentials"],
@@ -295,12 +283,9 @@ def googleLogin():
     }
     response = requests.get(USER_INFO_URL, params=params)
     user_data = json.loads(response.text)
-    print("USER DATA IS: {}".format(user_data))
-    print("STORING USER DATA IN SESSION...\n")
+
     # Store user information in session
     session["email"] = user_data["email"]
-    print("User email is: {}\n".format(session["email"]))
-    print("Redirecting\n")
     return redirect(url_for("home"))
 
 
