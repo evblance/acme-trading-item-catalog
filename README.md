@@ -1,5 +1,5 @@
 # ACME Trading Item Catalog
-A quirky Full-Stack CRUD application using both OAuth2 authentication (via Google) and server-side management of credentials. It uses Python 3 (Flask microframework), SQLAlchemy, D3.js and Bootstrap, also providing a RESTful API.
+A Full-Stack CRUD application with a wacky database, implemented with Python 3 (via Flask microframework), SQLAlchemy, D3.js and Bootstrap. It features a RESTful API to go with the front-end, offering the user choice between OAuth2 authentication (via Google) or server-side login with session expiry.
 
 # Running the app
 ## Requirements
@@ -12,25 +12,26 @@ Before first run, it is best to initialize the database with some starter data. 
   2. `python populate_db.py`
 
 ## Starting the back-end server
-The application can then be launched by running `python views.py` which will start the HTTP server. The user interface can then be accessed by navigating your browser to `http://localhost:5050`.
+The application is launched by running `python views.py` which will start the Flask HTTP server. The user interface can then be accessed by navigating to `http://localhost:5050`.
 
 # Using the API
 ## Endpoints
-The app provides two API endpoints for querying information about categories and items, and additional restricted endpoints to perform create, update and delete operations on the catalog database. All API calls return [JSON](http://www.json.org/).
+The app provides API endpoints for querying information about categories and items, and additional restricted endpoints for performing create, update and delete operations on the catalog data. All API calls return [JSON](http://www.json.org/).
 
 Required parameters are shown in **bold**.
 
-API Endpoint | Method | Parameters | Accepted vals
+API Endpoint | Method | Parameters | Value(s)
 -- | -- | -- | --
 localhost:5050/api/items/json | GET | id | An integer category ID
 || | name | A string representing the category name
-|| | mode | `list` or `search`
 || | query | A string representing a search query
+|| | category_id | An integer representing a category ID
+|| | mode | `list` or `search`
 ||
 localhost:5050/api/categories/json | GET | id | An integer item ID
 || | name | A string representing the item name
-|| | mode | `list` or `search`
 || | query | A string representing a search query
+|| | mode | `list` or `search`
 ||
 localhost:5050/api/add/item | POST | **token** | A string representing a valid access token
 || | **name** | A string representing the name of the new item
@@ -60,27 +61,26 @@ localhost:5050/api/delete/category | DELETE | **token** | A string representing 
 || | **id** | An integer ID representing the category to be deleted
 
 ### Notes
-- For `GET` routes, if `mode=search`, *query* must be provided. If `mode=list`, request will return a list of all items or categories depending on the endpoint used.
+- For `GET` routes, if `mode=search`, a search string must be provided for `query`. If `mode=list`, the call will return a list of all items or categories depending on the endpoint used.
 - For `GET` routes, `id` and `name` are mutually exclusive parameters.
- - Item/Category images cannot be added or updated via the API. For this functionality, users must log in via the website UI.
+ - Item/Category images cannot be added or updated via the API. For this functionality, users must log in via the web UI (`http://localhost:5050/login`).
 
 ## User registration and access tokens
-API requests that alter data can only be performed by users with registered accounts and using a valid access token. An new account can be created via a request to `localhost:5050/api/registration` and passing a valid email address as the `username`, along with a `password`:
+API requests that alter data can only be performed by users with registered accounts and using a valid access token. An new account can be created via a request to `localhost:5050/api/registration` and passing a valid `username` (email address) and `password`:
 
 ```
-POST http://localhost:5050/api/registration?username=bilbobaggins@hobbits.com&password=FrodoBaggins
+POST  http://localhost:5050/api/registration?username=bilbobaggins@hobbits.co.nz&password=FrodoBaggins
 ```
 
 Registered users can then request access tokens by authenticating with credentials. Access tokens are valid for 15 minutes.
 
 ```
-POST http://localhost:5050/api/tokens?username=bilbobaggins@hobbits.com&password=FrodoBaggins
+POST  http://localhost:5050/api/tokens?username=bilbobaggins@hobbits.co.nz&password=FrodoBaggins
 ```
 
 ## Examples
 
 Example Call 1:
-
 `http://localhost:5050/api/items/json?category_id=9`
 
 Example Response 1:
@@ -108,7 +108,6 @@ Example Response 1:
 }
 ```
 Example Call 2:
-
 `http://localhost:5050/api/items/json?mode=search&query=tea`
 
 Example Response 2:
