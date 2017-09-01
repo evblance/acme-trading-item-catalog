@@ -130,10 +130,7 @@ def checkToken(token):
 
 def requireLogin():
     """ Function that returns True if user is not logged in """
-    try:
-        username = session["email"]
-        # must also check credentials here to see if token is still valid
-    except KeyError:
+    if session.get("email") is None:
         flash("You must log in to continue.")
         return True
     return False
