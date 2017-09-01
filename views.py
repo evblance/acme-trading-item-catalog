@@ -48,21 +48,21 @@ db_session = DBSession()
 # CONSTANTS #
 #############
 
+# Sets the title for the app
 TITLE = "ACME Trading"
 
-G_TOKEN_CHK_BASE_URL = \
-    "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
-
-G_TOKEN_REVOKE_BASE_URL = \
-    "https://accounts.google.com/o/oauth2/revoke?token={}"
-
-G_USER_INFO_URL = \
-    "https://www.googleapis.com/oauth2/v1/userinfo"
-
-LOGIN_VIEW = "login"
-
+# Sets the value for session access token timeout
 TOKEN_TIMEOUT = 900
 
+# Google OAuth2 URLs
+G_TOKEN_CHK_BASE_URL = \
+"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
+G_TOKEN_REVOKE_BASE_URL = \
+"https://accounts.google.com/o/oauth2/revoke?token={}"
+G_USER_INFO_URL = \
+"https://www.googleapis.com/oauth2/v1/userinfo"
+
+# Google Auth2 Client secret
 with open("data/client_secret.json", "r") as gcs:
     G_CLIENT_SECRET = json.loads(gcs.read())["web"]["client_id"]
 
@@ -386,7 +386,7 @@ def displayCategory(category_id):
 @app.route("/items/<int:category_id>/add", methods=["POST", "GET"])
 def addItems(category_id):
     if requireLogin():
-        return redirect(url_for(LOGIN_VIEW))
+        return redirect(url_for("login"))
     category = db_session.query(Category).filter_by(id=category_id).one()
     subheading = "Add items for category '{category}' (id: {id})" \
                  .format(category=category.name, id=category_id)
@@ -432,7 +432,7 @@ def addItems(category_id):
            methods=["POST", "GET"])
 def updateItem(item_id, category_id):
     if requireLogin():
-        return redirect(url_for(LOGIN_VIEW))
+        return redirect(url_for("login"))
     category = db_session.query(Category).filter_by(id=category_id).one()
     item = db_session.query(Item).filter_by(id=item_id).one()
     subheading = """
@@ -500,7 +500,7 @@ def updateItem(item_id, category_id):
            methods=["POST", "GET"])
 def deleteItem(item_id, category_id):
     if requireLogin():
-        return redirect(url_for(LOGIN_VIEW))
+        return redirect(url_for("login"))
     category = db_session.query(Category).filter_by(id=category_id).one()
     item = db_session.query(Item).filter_by(id=item_id).one()
     subheading = """
@@ -532,7 +532,7 @@ def deleteItem(item_id, category_id):
 @app.route("/categories/add", methods=["POST", "GET"])
 def addCategories():
     if requireLogin():
-        return redirect(url_for(LOGIN_VIEW))
+        return redirect(url_for("login"))
     subheading = "Add categories"
     last_category = db_session.query(Category).order_by(
                         Category.id.desc()
@@ -571,7 +571,7 @@ def addCategories():
 @app.route("/categories/update/<int:category_id>", methods=["POST", "GET"])
 def updateCategory(category_id):
     if requireLogin():
-        return redirect(url_for(LOGIN_VIEW))
+        return redirect(url_for("login"))
     category = db_session.query(Category).filter_by(id=category_id).one()
     subheading = "Updating category '{name}' (id: {id})" \
                  .format(name=category.name, id=category_id)
@@ -616,7 +616,7 @@ def updateCategory(category_id):
 @app.route("/categories/delete/<int:category_id>", methods=["POST", "GET"])
 def deleteCategory(category_id):
     if requireLogin():
-        return redirect(url_for(LOGIN_VIEW))
+        return redirect(url_for("login"))
     category = db_session.query(Category).filter_by(id=category_id).one()
     category_items = db_session.query(Item).filter_by(
                          category_id=category_id
