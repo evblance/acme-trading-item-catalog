@@ -48,7 +48,8 @@
         contentType: 'application/octet-stream; charset=utf-8',
         data: authResult['code'],
         beforeSend: function() {
-          $('.g-login__message').html("Working...");
+          $('.g-login__message').html('Working...');
+          $('.flash').html('')
         },
         success: function(res) {
           if (res) {
