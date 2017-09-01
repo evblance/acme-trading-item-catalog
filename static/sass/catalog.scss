@@ -59,17 +59,22 @@ body {
   display: inline;
 }
 
+
 /* 1. BUTTONS */
+
+.btn--add {
+  display: inline-block;
+}
 
 
 /* 2. HEADER */
 
 .header {
   background: $navBackgroudColor;
-  display: flex;
-  justify-content: space-between;
-  font-family: $headersFont;
   box-shadow: $menuShadow;
+  display: flex;
+  font-family: $headersFont;
+  justify-content: space-between;
   transition: $lazyTransition;
   z-index: 1;
 }
@@ -85,15 +90,15 @@ body {
 }
 
 .main-menu {
-  height: $menuHeight;
   display: flex;
+  height: $menuHeight;
   margin: 0 10px;
 }
 
 .main-menu__list {
+  color: $menuTextColor;
   display: flex;
   list-style: none;
-  color: $menuTextColor;
 }
 
 .main-menu__item {
@@ -106,12 +111,8 @@ body {
 }
 
 .main-menu__dropdown {
-  list-style: none;
   display: none;
-}
-
-.main-menu__dropdown-item {
-
+  list-style: none;
 }
 
 .main-menu__dropdown-link {
@@ -119,16 +120,15 @@ body {
 }
 
 
-
 /* 3. FOOTER */
 
 .footer {
+  align-items: center;
   background: $footerBackgroundColor;
   color: $menuTextColor;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
   height: $footerHeight;
+  justify-content: flex-end;
 }
 
 .footer__legal {
@@ -140,13 +140,13 @@ body {
 
 .admin-panel--category {
   align-items: center;
+  bottom: 0;
   display: flex;
   justify-content: flex-start;
   left: -100%;
   position: absolute;
-  bottom: 0;
-  width: 100%;
   transition: $lazyTransition;
+  width: 100%;
 }
 
 .admin-panel--category--shown {
@@ -179,10 +179,6 @@ body {
   margin: 2%;
 }
 
-.btn--add {
-  display: inline-block;
-}
-
 .flash {
   margin: 10px auto;
 }
@@ -194,14 +190,14 @@ body {
 }
 
 .form--login__heading {
-  text-align: center;
   margin: 25px;
+  text-align: center;
 }
 
 .form--login__label {
   display: block;
-  text-align: left;
   margin: 10px auto 0 5px;
+  text-align: left;
 }
 
 .form--login__submit {
@@ -210,10 +206,10 @@ body {
 }
 
 .form--delete {
-  margin: 80px auto;
-  width: 100%;
   display: flex;
   justify-content: center;
+  margin: 80px auto;
+  width: 100%;
 }
 
 .form--delete__submit,
@@ -230,15 +226,15 @@ body {
 
 .form--update__label {
   display: block;
-  text-align: left;
   margin: 10px auto 0 5px;
+  text-align: left;
 }
 
 .g-login {
+  align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   margin-top: 50px;
 }
 
@@ -295,8 +291,8 @@ body {
 
   &::before {
     content: "$";
-    position: absolute;
     left: -20px;
+    position: absolute;
   }
 }
 
@@ -342,8 +338,8 @@ body {
 .list__item--categories__img {
   height: 100%;
   position: absolute;
-  top: 0;
   right: -80px;
+  top: 0;
   transition: $lazyTransition;
 }
 
@@ -362,10 +358,6 @@ body {
   &:hover {
     color: $linkHoverColor;
     text-decoration: none;
-
-    // + .list__item--categories__img {
-    //   right: 0;
-    // }
   }
 }
 
@@ -382,9 +374,9 @@ body {
 .login__link {
   color: $menuTextColor;
   display: inline-block;
-  text-decoration: none;
   height: 100%;
   line-height: $menuHeight;
+  text-decoration: none;
   transition: $lazyTransition;
 
   &:hover {
@@ -399,8 +391,8 @@ body {
 .main {
   background: $backgroundColor;
   display: block;
-  font-family: $bodyFont;
   flex: 1 0 auto;
+  font-family: $bodyFont;
 }
 
 .stock-bar {
