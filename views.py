@@ -57,7 +57,7 @@ G_TOKEN_CHK_BASE_URL = \
 G_TOKEN_REVOKE_BASE_URL = \
     "https://accounts.google.com/o/oauth2/revoke?token={}"
 
-USER_INFO_URL = \
+G_USER_INFO_URL = \
     "https://www.googleapis.com/oauth2/v1/userinfo"
 
 LOGIN_VIEW = "login"
@@ -278,7 +278,7 @@ def googleLogin():
         "access_token": session["credentials"],
         "alt": "json"
     }
-    response = requests.get(USER_INFO_URL, params=params)
+    response = requests.get(G_USER_INFO_URL, params=params)
     user_data = json.loads(response.text)
 
     # Store user information in session
