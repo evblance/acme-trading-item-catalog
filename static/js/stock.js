@@ -1,5 +1,6 @@
 /*
- * Plugin for generating item stock level bars using D3.js
+ * STOCK.js - Custom plugin for generating stock levels
+ *            via colored bars
  */
 
 var BARWIDTH = 50;
@@ -11,14 +12,15 @@ var stockScale = d3.scaleLinear()
 
 var colorScale = d3.scaleLinear()
                    .domain([0, 10, 20, 9999])
-                   .range(['red', 'orange', 'lightgreen', 'green'])
+                   .range(['red', 'orange', 'lightgreen', 'green']);
 
-var tooltip = d3.select('.stock-bar')
-                 .append('div')
-                 .style('position', 'absolute')
-                 .style('padding', '0 10px')
-                 .style('background', '#ddd')
-                 .style('opacity', '0.5');
+// TODO: Add tooltips to bars
+// var tooltip = d3.select('.stock-bar')
+//                  .append('div')
+//                  .style('position', 'absolute')
+//                  .style('padding', '0 10px')
+//                  .style('background', '#ddd')
+//                  .style('opacity', '0.5');
 
 function insertStockbar(id, stock) {
     var selectString = '#' + id + ' .item__stock';
@@ -46,7 +48,7 @@ $(document).ready(function() {
 
   var $items = $('.item');
   var numItems = $items.length;
-  var item, stock, itemId;
+  var id, item, stock;
 
   for (var i = 0; i < numItems; i++) {
     item = $items[i];
