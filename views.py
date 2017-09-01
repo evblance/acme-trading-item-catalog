@@ -699,7 +699,8 @@ def APIRegisterUser():
     if not validPasswordInput(request.args["password"]):
         return jsonRespObj(
                    400,
-                   "Registrant's password may not contain any spaces."
+                   "Registrant's password must contain at least 8 " \
+                   + "symbols but no spaces."
                )
     # Only register a new user if the email address (username) does
     # not exist already in DB
