@@ -62,7 +62,7 @@ G_USER_INFO_URL = \
 
 LOGIN_VIEW = "login"
 
-TOKEN_TIMEOUT = 900
+TOKEN_TIMEOUT = 30
 
 with open("data/client_secret.json", "r") as gcs:
     G_CLIENT_SECRET = json.loads(gcs.read())["web"]["client_id"]
@@ -90,8 +90,8 @@ def jsonRespObj(status_code, message):
     return response
 
 
-def generateSessionToken():
-    """ Returns a string representing a session token """
+def generateToken():
+    """ Returns a string representing a token """
     uuid_1 = str(uuid.uuid4())
     uuid_2 = str(uuid.uuid4())
     return (uuid_1 + uuid_2).replace("-", "")
@@ -102,13 +102,13 @@ def checkPassword(user, password):
     return bcrypt.check_password_hash(user.password_hash, password)
 
 
-def generateTimedToken(seconds):
+def generateTimedAccessToken(seconds):
     """ Returns a signed token to the user with specified TTL """
     token_signer = TimedJSONWebSignatureSerializer(
                        app.config["SECRET_KEY"],
                        expires_in=seconds
                    )
-    token = generateSessionToken()
+    token = generateToken()
     return token_signer.dumps({"token": token})
 
 
@@ -127,11 +127,41 @@ def checkToken(token):
         return False
     return True
 
+def refreshSessionAccessToken(seconds):
+    """
+    Refreshes an authenticated user's login session
+
+    Refreshes an authenticated user's login session token and
+    returns True if successful
+    """
+    # Only refresh access token if a valid one already exists
+    if session.get("access_token") is None:
+        return False
+    session["access_token"] = generateTimedAccessToken(seconds).decode()
+    return True
+
+
+def setSessionAccessToken(seconds):
+    """ Sets an authenticated user's login session access token """
+    session["access_token"] = generateTimedAccessToken(seconds).decode()
+
 
 def requireLogin():
     """ Function that returns True if user is not logged in """
+    # Session must have an authenticated username (email) assigned
     if session.get("email") is None:
         flash("You must log in to continue.")
+        return True
+    # Session cannot be stale
+    if (session.get("access_token") is None) or \
+       (not checkToken(session["access_token"])):
+       del session["email"]
+       flash("Session expired.")
+       return True
+    # Session must be able to refresh
+    if not refreshSessionAccessToken(TOKEN_TIMEOUT):
+        del session["email"]
+        flash("Could not confirm valid user access.")
         return True
     return False
 
@@ -173,25 +203,28 @@ def login():
             flash("Incorrect username or password.")
             return redirect(url_for("login"))
         password = bleach.clean(request.form["password"])
-        # Attempt to load user
+        # Try to load the user attempting login
         try:
             user = db_session.query(User).filter_by(username=username).one()
         except NoResultFound:
             flash("Incorrect username or password.")
             return redirect(url_for("login"))
-        # Log user in if supplied password is correct
+        # Log user in if supplied password is correct and store a
+        # timed access token...
         if checkPassword(user, password):
             session["email"] = username
+            setSessionAccessToken(TOKEN_TIMEOUT)
             flash("You are now logged in as '{}'."
                   .format(session["email"]))
             return redirect(url_for("home"))
         else:
+            # ...otherwise redirect to login screen with feedback
             flash("Incorrect username or password.")
             return redirect(url_for("login"))
 
     if request.method == "GET":
         # Set a new state for the login session
-        session["state"] = generateSessionToken()
+        session["state"] = generateToken()
         return render_template("login.html",
                                title=TITLE,
                                STATE=session["state"])
@@ -708,7 +741,7 @@ def APIRegisterToken():
     # If password is correct, generate a timed token for the user
     # and send back with a 200
     if checkPassword(user, request.args["password"]):
-        token = generateTimedToken(TOKEN_TIMEOUT)
+        token = generateTimedAccessToken(TOKEN_TIMEOUT)
         resp_data = {
             "status": 200,
             "token": token.decode(),
