@@ -72,7 +72,7 @@ with open("data/client_secret.json", "r") as gcs:
 ####################
 
 def jsonRespObj(status_code, message):
-    """ Returns a jsonified response object to be sent to the client """
+    """ Generate a JSONified reponse object and return it. """
     resp_data = {
         "status": status_code,
         "message": message
@@ -83,19 +83,19 @@ def jsonRespObj(status_code, message):
 
 
 def generateToken():
-    """ Returns a string representing a token """
+    """ Generate a string representing a token and return it. """
     uuid_1 = str(uuid.uuid4())
     uuid_2 = str(uuid.uuid4())
     return (uuid_1 + uuid_2).replace("-", "")
 
 
 def checkPassword(user, password):
-    """ Returns True if password is correct for the user """
+    """ Check a user password and return True if correct. """
     return bcrypt.check_password_hash(user.password_hash, password)
 
 
 def generateTimedAccessToken(seconds):
-    """ Returns a signed token to the user with specified TTL """
+    """ Generate a signed token with specified TTL and return it. """
     token_signer = TimedJSONWebSignatureSerializer(
                        app.config["SECRET_KEY"],
                        expires_in=seconds
@@ -105,7 +105,7 @@ def generateTimedAccessToken(seconds):
 
 
 def checkToken(token):
-    """ Returns True if provided token is current and valid """
+    """ Check a token is current/valid and return True if so. """
     token_signer = TimedJSONWebSignatureSerializer(
                        app.config["SECRET_KEY"]
                    )
@@ -122,10 +122,10 @@ def checkToken(token):
 
 def refreshSessionAccessToken(seconds):
     """
-    Refreshes a server-side authenticated user's login session
+    Refresh a server-side authenticated user's login session.
 
-    Refreshes a server-side authenticated user's login session token and
-    returns True if successful
+    Refresh a server-side authenticated user's login session token and
+    returns True if successful.
     """
     # Only refresh access token if a valid one already exists
     if session.get("access_token") is None:
@@ -135,12 +135,12 @@ def refreshSessionAccessToken(seconds):
 
 
 def setSessionAccessToken(seconds):
-    """ Sets a server-side authenticated user's login session access token """
+    """ Set a server-side authenticated user's login session access token. """
     session["access_token"] = generateTimedAccessToken(seconds).decode()
 
 
 def requireLogin():
-    """ Function that returns True if user is not logged in """
+    """ Check if user's login status and return True if not logged in. """
     # Session must have an authenticated username (email) assigned
     if session.get("email") is None:
         flash("You must log in to continue.")
@@ -165,14 +165,14 @@ def requireLogin():
 
 
 def validEmailInput(email):
-    """ Function that performs (very) simple email validation """
+    """ Perform simple email validation and return True on pass. """
     if "@" and "." not in email:
         return False
     return True
 
 
 def validPasswordInput(password):
-    """ Function that performs password validation """
+    """ Perform password validation and return True on pass. """
     if len(password) < 8:
         # Password need to be at least 8 charcters long
         return False
