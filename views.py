@@ -56,11 +56,11 @@ TOKEN_TIMEOUT = 900
 
 # Google OAuth2 URLs
 G_TOKEN_CHK_BASE_URL = \
-"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
+    "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
 G_TOKEN_REVOKE_BASE_URL = \
-"https://accounts.google.com/o/oauth2/revoke?token={}"
+    "https://accounts.google.com/o/oauth2/revoke?token={}"
 G_USER_INFO_URL = \
-"https://www.googleapis.com/oauth2/v1/userinfo"
+    "https://www.googleapis.com/oauth2/v1/userinfo"
 
 # Google Auth2 Client secret
 with open("data/client_secret.json", "r") as gcs:
