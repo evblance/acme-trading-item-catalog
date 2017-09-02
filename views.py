@@ -488,6 +488,7 @@ def deleteItem(item_id, category_id):
         return redirect(url_for("displayCategory", category_id=category_id))
 
     elif request.method == "GET":
+        # Give user a warning prior to delete confirmationy
         flash("Warning: This operation cannot be undone!")
         return render_template("delete_item.html",
                                title=TITLE,
@@ -608,6 +609,7 @@ def deleteCategory(category_id):
         return redirect(url_for("home"))
 
     elif request.method == "GET":
+        # Give user a warning prior to delete confirmation
         flash(
             """
             Warning: This operation cannot be undone and will also delete all
