@@ -31,27 +31,13 @@ $headersFont: "Mukta Mahee", sans-serif;
 $footerHeight: 80px;
 $menuHeight: 60px;
 
-html, body {
-  height: 100%;
-}
-
-.wrapper {
-  background: $backgroundColor;
-  min-height: 100%;
-  margin-bottom: -$footerHeight;
-
-  &:after {
-    content: "";
-    display: block;
-    height: $footerHeight;
-  }
-}
 
 
 /*
  * TABLE OF CONTENTS
  * *****************
  *
+ *  -1. Wrapping
  *   0. Helpers
  *   1. Buttons
  *   2. Header
@@ -59,6 +45,25 @@ html, body {
  *   4. Content
  *
  */
+
+
+/* -1. WRAPPING */
+
+ html, body {
+   height: 100%;
+ }
+
+ .wrapper {
+   background: $backgroundColor;
+   min-height: 100%;
+   margin-bottom: -$footerHeight;
+
+   &:after {
+     content: "";
+     display: block;
+     height: $footerHeight;
+   }
+ }
 
 
 /* 0. HELPERS */
