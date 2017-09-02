@@ -443,8 +443,8 @@ def updateItem(item_id, category_id):
             updated_stock = request.form["stock"]
             item.stock = updated_stock
         if request.form["description"]:
-            updated_decription = request.form["description"]
-            item.description = updated_decription
+            updated_description = request.form["description"]
+            item.description = updated_description
         if request.files["image"]:
             # creates a directory for the item images if this was not
             # done during creation of item
