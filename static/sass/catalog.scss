@@ -264,6 +264,16 @@ body {
   width: 100%;
 }
 
+.item__content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.item__description {
+  font-size: 16px;
+  margin: 15px 0 0;
+}
+
 .item__header {
   display: flex;
   flex-wrap: wrap;
@@ -271,10 +281,9 @@ body {
   justify-content: space-between;
 }
 
-
-.item__description {
-  font-size: 16px;
-  margin: 15px auto 0;
+.item__img {
+  width: 100px;
+  height: 100px;
 }
 
 .item__price {
@@ -365,7 +374,6 @@ body {
   display: inline-block;
   background: white;
 }
-
 
 .login {
   margin: 0 10px;

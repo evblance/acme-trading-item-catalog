@@ -27,8 +27,9 @@
       <input class="form-control" min="0" name="stock" type="number" value="{{ item.stock }}">
       <label class="form--update__label" for="description">Description</label>
       <textarea class="form-control" name="description" rows=8></textarea>
-      <label class="form--update__label" for="image">Upload image</label>
-      <input class="form-control" name="image" type="file" readonly>
+      <!-- TODO: Add images for items -->
+      <!-- <label class="form--update__label" for="image">Upload image</label>
+      <input class="form-control" name="image" type="file" readonly> -->
     </fieldset>
     <button class="btn btn-info form--update__submit" type="submit">Update</button>
     <a href="{{ url_for('displayCategory', category_id=category.id) }}"

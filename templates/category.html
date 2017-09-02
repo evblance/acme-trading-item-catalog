@@ -33,7 +33,15 @@
             </div>
           </div>
         </div>
-        <p class="item__description">{{ item.description }}</p>
+        <div class="item__content">
+          <p class="item__description">{{ item.description }}</p>
+          <!-- TODO: Images for items -->
+          <!-- {% if item.image %}
+          <img class="item__img img-responsive"
+               src="{{ item.image }}"
+               alt="image of {{ item.name }}">
+          {% endif %} -->
+        </div>
         {% if session["email"] %}
         <div class="admin-panel--item">
           <a class="admin-panel--item__update" href="{{ url_for('updateItem', item_id=item.id, category_id=category.id) }}">Update</a>
