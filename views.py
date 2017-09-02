@@ -33,7 +33,7 @@ import bleach
 
 # Init Flask app
 app = Flask(__name__)
-app.config["IMG_DIR"] = "static/images"
+app.config["IMG_DIR"] = os.path.join("static", "images")
 app.config["SECRET_KEY"] = str(uuid.uuid4()).replace("-", "")
 bcrypt = Bcrypt(app)
 
