@@ -35,10 +35,18 @@ html, body {
   height: 100%;
 }
 
-body {
-  display: flex;
-  flex-direction: column;
+.wrapper {
+  background: $backgroundColor;
+  min-height: 100%;
+  margin-bottom: -$footerHeight;
+
+  &:after {
+    content: "";
+    display: block;
+    height: $footerHeight;
+  }
 }
+
 
 /*
  * TABLE OF CONTENTS
@@ -399,7 +407,6 @@ body {
 .main {
   background: $backgroundColor;
   display: block;
-  flex: 1 0 auto;
   font-family: $bodyFont;
 }
 

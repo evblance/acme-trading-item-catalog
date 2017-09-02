@@ -1,9 +1,14 @@
 html, body {
   height: 100%; }
 
-body {
-  display: flex;
-  flex-direction: column; }
+.wrapper {
+  background: #e6e6e6;
+  min-height: 100%;
+  margin-bottom: -80px; }
+  .wrapper:after {
+    content: "";
+    display: block;
+    height: 80px; }
 
 /*
  * TABLE OF CONTENTS
@@ -293,7 +298,6 @@ body {
 .main {
   background: #e6e6e6;
   display: block;
-  flex: 1 0 auto;
   font-family: "Open Sans", sans-serif; }
 
 .stock-bar {

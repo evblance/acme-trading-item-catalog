@@ -17,23 +17,25 @@
 
 <body>
 
-  <header class="header">
-    <nav class="main-menu">
-      <a class="heading--title" href="{{ url_for('home') }}">{{ title }}</a>
-    </nav>
-    <div class="login">
-      {% if not session["email"] %}
-      <a class="login__link" href="{{ url_for('login') }}">Admin Login</a>
-      {% else %}
-      <span class="logged-in-as">{{ session["email"] }} | </span><a class="login__link" href="{{ url_for('logout') }}">Logout</a>
-      {% endif %}
-    </div>
-  </header>
+  <div class="wrapper">
+    <header class="header">
+      <nav class="main-menu">
+        <a class="heading--title" href="{{ url_for('home') }}">{{ title }}</a>
+      </nav>
+      <div class="login">
+        {% if not session["email"] %}
+        <a class="login__link" href="{{ url_for('login') }}">Admin Login</a>
+        {% else %}
+        <span class="logged-in-as">{{ session["email"] }} | </span><a class="login__link" href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+      </div><!-- .login -->
+    </header>
 
-  <main class="main">
-    {% block content %}
-    {% endblock %}
-  </main>
+    <main class="main">
+      {% block content %}
+      {% endblock %}
+    </main>
+  </div><!-- .wrapper -->
 
   <footer class="footer">
     <div class="footer__legal">&copy; 2017-Inf ACME Trading Inc.</div>
