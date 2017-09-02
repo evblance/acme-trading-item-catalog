@@ -23,9 +23,11 @@
          href="{{ url_for('displayCategory', category_id=category.id) }}">
          <span class="list__item--categories__name">{{ category.name }}</span>
        </a>
+         {% if category.image %}
          <img class="list__item--categories__img"
          src="{{ category.image }}"
          alt="image of {{ category.name }} category">
+         {% endif %}
       {% if session["email"] %}
       <div class="admin-panel--category">
          <a class="admin-panel--category__update"
