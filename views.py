@@ -71,13 +71,6 @@ with open("data/client_secret.json", "r") as gcs:
 # HELPER FUNCTIONS #
 ####################
 
-def makeRespObj(status_code, message):
-    return {
-        "status": status_code,
-        "message": message
-    }
-
-
 def jsonRespObj(status_code, message):
     """ Returns a jsonified response object to be sent to the client """
     resp_data = {
