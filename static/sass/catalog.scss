@@ -427,3 +427,25 @@ $menuHeight: 60px;
   font-size: 36px;
   margin: 20px 0 30px 15px;
 }
+
+@media screen and (max-width: 385px) {
+
+  .header {
+    flex-direction: column;
+  }
+
+  .heading--title {
+    font-size: 24px;
+    line-height: 30px;
+    margin: 2px;
+  }
+
+  .login__link {
+    font-size: 16px;
+    line-height: 30px;
+  }
+
+  .main-menu {
+    height: 30px;
+  }
+}
