@@ -379,14 +379,15 @@ def addItems(category_id):
         new_item.description = request.form["description"]
         if not request.form["description"]:
             new_item.description = ""
-        if request.files["image"]:
-            # create the image folder for the item
-            if not os.path.exists(image_dir):
-                os.makedirs(image_dir)
-            uploaded_image = request.files["image"]
-            safe_image = secure_filename(uploaded_image.filename)
-            uploaded_image.save(os.path.join(image_dir, safe_image))
-            new_item.image = os.path.join(image_dir, safe_image)
+        # TODO: Add item image functionality
+        # if request.files["image"]:
+        #     # create the image folder for the item
+        #     if not os.path.exists(image_dir):
+        #         os.makedirs(image_dir)
+        #     uploaded_image = request.files["image"]
+        #     safe_image = secure_filename(uploaded_image.filename)
+        #     uploaded_image.save(os.path.join(image_dir, safe_image))
+        #     new_item.image = os.path.join(image_dir, safe_image)
 
         db_session.add(new_item)
         db_session.commit()
@@ -445,15 +446,16 @@ def updateItem(item_id, category_id):
         if request.form["description"]:
             updated_description = request.form["description"]
             item.description = updated_description
-        if request.files["image"]:
-            # creates a directory for the item images if this was not
-            # done during creation of item
-            if not os.path.exists(image_dir):
-                os.makedirs(image_dir)
-            uploaded_image = request.files["image"]
-            safe_image = secure_filename(uploaded_image.filename)
-            uploaded_image.save(os.path.join(image_dir, safe_image))
-            item.image = os.path.join(image_dir, safe_image)
+        # TODO: Add item image functionality
+        # if request.files["image"]:
+        #     # creates a directory for the item images if this was not
+        #     # done during creation of item
+        #     if not os.path.exists(image_dir):
+        #         os.makedirs(image_dir)
+        #     uploaded_image = request.files["image"]
+        #     safe_image = secure_filename(uploaded_image.filename)
+        #     uploaded_image.save(os.path.join(image_dir, safe_image))
+        #     item.image = os.path.join(image_dir, safe_image)
 
         db_session.add(item)
         db_session.commit()
